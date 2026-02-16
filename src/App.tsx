@@ -2,7 +2,6 @@ import { Route, Routes } from "react-router";
 import "./App.css";
 import Login from "./pages/Login.tsx";
 import Home from "./pages/Home.tsx";
-import Products from "./pages/Products.tsx";
 import Register from "./pages/Register.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import Profile from "./pages/Profile.tsx";
@@ -22,7 +21,9 @@ function App() {
           <Route path='/' element={<Home />} />
 
           <Route path='/login' element={<Login />} />
-          <Route path='/Register' element={<Register />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/product/detail/:id' element={<Details />} />
+          <Route path='/product' element={<Products />} />
 
           <Route
             path='/profile'
@@ -32,6 +33,17 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path='/cart'
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path='*' element={<NotFound />} />
 
           <Route path='/products' element={<Products />} />
         </Routes>
