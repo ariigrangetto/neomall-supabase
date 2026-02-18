@@ -23,6 +23,7 @@ export interface Products {
   warraty: string;
   shipping: string;
   availability: string;
+  image: string;
 }
 
 export interface Cart {
