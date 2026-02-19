@@ -3,5 +3,13 @@ import { useState } from "react";
 export default function useLoading() {
   const [loading, setLoading] = useState<boolean>(false);
 
-  return { loading, setLoading };
+  const startLoading = () => {
+    setLoading(true);
+  };
+
+  const stopLoading = () => {
+    setLoading(false);
+  };
+
+  return { startLoading, stopLoading };
 }
