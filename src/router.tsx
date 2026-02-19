@@ -7,6 +7,7 @@ import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Profile from "./pages/Profile.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
+import RootLayout from "./layout/RootLayaout.tsx";
 
 const getUser = async () => {
   const {
@@ -18,44 +19,49 @@ const getUser = async () => {
 export const router = createBrowserRouter(
   [
     {
-      path: "/",
-      element: <Home />,
-      errorElement: <ErrorPage />,
-    },
-    {
-      path: "/login",
-      element: <Login />,
-      errorElement: <ErrorPage />,
-    },
-    {
-      path: "/register",
-      element: <Register />,
-      errorElement: <ErrorPage />,
-    },
-    {
-      path: "/products",
-      element: <Products />,
-      errorElement: <ErrorPage />,
-    },
-    {
-      path: "/cart",
-      element: <Cart />,
-      errorElement: <ErrorPage />,
-      loader: async () => {
-        const user = await getUser();
-        if (!user) return redirect("/login");
-        return {};
-      },
-    },
-    {
-      path: "/profile",
-      element: <Profile />,
-      errorElement: <ErrorPage />,
-      loader: async () => {
-        const user = await getUser();
-        if (!user) return redirect("/login");
-        return { user };
-      },
+      element: <RootLayout />,
+      children: [
+        {
+          path: "/",
+          element: <Home />,
+          errorElement: <ErrorPage />,
+        },
+        {
+          path: "/login",
+          element: <Login />,
+          errorElement: <ErrorPage />,
+        },
+        {
+          path: "/register",
+          element: <Register />,
+          errorElement: <ErrorPage />,
+        },
+        {
+          path: "/products",
+          element: <Products />,
+          errorElement: <ErrorPage />,
+        },
+        {
+          path: "/cart",
+          element: <Cart />,
+          errorElement: <ErrorPage />,
+          loader: async () => {
+            const user = await getUser();
+            if (!user) return redirect("/login");
+            return {};
+          },
+        },
+        {
+          path: "/profile",
+          element: <Profile />,
+          errorElement: <ErrorPage />,
+          loader: async () => {
+            const user = await getUser();
+            if (!user) return redirect("/login");
+            return { user };
+          },
+        },
+      ],
     },
   ],
   { basename: "/" },
