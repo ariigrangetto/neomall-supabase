@@ -5,11 +5,11 @@ import { useNavigate } from "react-router";
 
 export default function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const { loading, setLoading } = useLoading();
+  const { startLoading, stopLoading } = useLoading();
   const navigate = useNavigate();
-  //investigar!!
 
   useEffect(() => {
+    startLoading();
     const checkAuth = async () => {
       const {
         data: { session },
@@ -19,10 +19,10 @@ export default function useAuth() {
       } else {
         setIsAuthenticated(true);
       }
-      setLoading(false);
+      stopLoading();
     };
     checkAuth();
   }, []);
 
-  return { isAuthenticated, setIsAuthenticated, loading, setLoading };
+  return { isAuthenticated, setIsAuthenticated };
 }
