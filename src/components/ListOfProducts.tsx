@@ -1,70 +1,25 @@
 import { Link } from "react-router";
-import useAuth from "../hooks/useAuth";
-import useUrl from "../hooks/useUrl";
+import useAuth from "../hooks/useAuth.tsx";
+import useUrl from "../hooks/useUrl.tsx";
 import { MousePointerClick } from "lucide-react";
-import supabase from "../supabase/client.js";
-import { useState } from "react";
+import useCartActions from "../hooks/useCartActions.tsx";
+import { useEffect } from "react";
 
 export default function ListOfProducts() {
   const { products } = useUrl();
   const { isAuthenticated } = useAuth();
-  const [isProductInCart, setIsProductInCart] = useState<boolean>(false);
+  const { addProductToCart, getProductsInCart, cart } = useCartActions();
 
-  const getOrCreateCart = async () => {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData?.user.id;
+  useEffect(() => {
+    getProductsInCart();
+  }, []);
 
-    const { data: cart } = await supabase
-      .from("Cart")
-      .select()
-      .eq("user_id", userId);
+  function findItem(productId: number | string) {
+    const inCart = cart.find((product) => product.product_id === productId);
+    const text = inCart ? "Agregado al carrito" : "Agregar al carrito";
+    return { text };
+  }
 
-    if (cart.length > 0) {
-      return cart[0].id;
-    } else {
-      const { data: newCart, error } = await supabase
-        .from("Cart")
-        .insert({ user_id: userId })
-        .select();
-
-      if (error) throw error;
-      return newCart[0].id;
-    }
-  };
-
-  const addToCart = async (productId: number | string) => {
-    const cartId = await getOrCreateCart();
-
-    //checkeamos que el producto esté en el carrito
-
-    const { data: productInCart } = await supabase
-      .from("CartItems")
-      .select()
-      .eq("cart_id", cartId)
-      .eq("product_id", productId);
-
-    if (productInCart.length > 0) {
-      const { error } = await supabase
-        .from("CartItems")
-        .update({ quantity: productInCart[0].quantity + 1 })
-        .eq("product_id", productId)
-        .eq("cart_id", cartId)
-        .select();
-
-      if (error) throw error;
-      setIsProductInCart(true);
-    } else {
-      //si no está en el carrito, lo insertamos
-      const { error } = await supabase.from("CartItems").insert({
-        cart_id: cartId,
-        product_id: productId,
-        quantity: 1,
-      });
-
-      if (error) throw error;
-      setIsProductInCart(true);
-    }
-  };
   return (
     <>
       {products && products?.length > 0 ? (
@@ -78,11 +33,8 @@ export default function ListOfProducts() {
                 <strong>${product.price}</strong>
                 <p>{product.description}</p>
                 {isAuthenticated ? (
-                  //aquí tengo que fijarme si el producto ya está en el carrito o no
-                  <button onClick={() => addToCart(product.id)}>
-                    {isProductInCart
-                      ? "Agregado al carrito"
-                      : "Agregar al carrito"}
+                  <button onClick={() => addProductToCart(product.id)}>
+                    {findItem(product.id).text}
                     <i>
                       <MousePointerClick />
                     </i>
@@ -102,7 +54,7 @@ export default function ListOfProducts() {
           ))}
         </ul>
       ) : (
-        <p>Opps! Parece que ocurrió un error. Vuelva a internalo</p>
+        <p>Ops! Parece que ocurrió un error. Vuelva a intentarlo.</p>
       )}
     </>
   );
