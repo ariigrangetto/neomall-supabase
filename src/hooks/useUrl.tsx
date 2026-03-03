@@ -68,6 +68,7 @@ export default function useUrl() {
   const handleChangePage = (page: number) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setSearchParams(params);
     setCurrentPage(page);
   };
