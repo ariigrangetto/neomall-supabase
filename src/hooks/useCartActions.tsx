@@ -1,105 +1,204 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import supabase from "../supabase/client.js";
 import type { CartItem } from "../types";
 
 export default function useCartActions() {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  const getOrCreateCart = async () => {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData?.user.id;
+  // comunication in real time with CartItems
+  useEffect(() => {
+    let channel: any;
+    const subscribe = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user.id;
+      if (!userId) return;
+      const { data: cartData } = await supabase
+        .from("Cart")
+        .select()
+        .eq("user_id", userId);
+      if (!cartData || cartData.length === 0) return;
+      const cartId = cartData[0].id;
+      channel = supabase
+        .channel("cartitems-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "CartItems",
+            filter: `cart_id=eq.${cartId}`,
+          },
+          (payload) => {
+            getProductsInCart();
+          },
+        )
+        .subscribe();
+    };
+    subscribe();
+    // avoid memory leaks
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, []);
 
-    const { data: cart } = await supabase
+  const getOrCreateCart = async () => {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("Error obteniendo usuario:", userError.message);
+      throw userError;
+    }
+    const userId = userData?.user.id;
+    if (!userId) throw new Error("Usuario no autenticado");
+    const { data: cart, error: cartError } = await supabase
       .from("Cart")
       .select()
       .eq("user_id", userId);
-
-    if (cart.length > 0) {
+    if (cartError) {
+      console.error("Error obteniendo carrito:", cartError.message);
+      throw cartError;
+    }
+    if (cart && cart.length > 0) {
       return cart[0].id;
     } else {
       const { data: newCart, error } = await supabase
         .from("Cart")
         .insert({ user_id: userId })
         .select();
-
-      if (error) throw error;
+      if (error) {
+        console.error("Error creando carrito:", error.message);
+        throw error;
+      }
       return newCart[0].id;
     }
   };
 
   const getProductsInCart = async () => {
-    const cartId = await getOrCreateCart();
-    const { data, error } = await supabase
-      .from("CartItems")
-      .select()
-      .eq("cart_id", cartId);
-
-    if (error) throw new error();
-
-    setCart(data);
+    try {
+      const cartId = await getOrCreateCart();
+      const { data, error } = await supabase
+        .from("CartItems")
+        .select()
+        .eq("cart_id", cartId);
+      if (error) {
+        console.error("Error obteniendo productos del carrito:", error.message);
+        return;
+      }
+      setCart(data || []);
+    } catch (err: any) {
+      console.error("Error general en getProductsInCart:", err.message);
+    }
   };
 
   const addProductToCart = async (productId: number | string) => {
-    const cartId = await getOrCreateCart();
-
-    const { data: existingProducts } = await supabase
-      .from("CartItems")
-      .select()
-      .eq("cart_id", cartId)
-      .eq("product_id", productId)
-      .maybeSingle(); //si existe devuelve el objeto, en caso contrario null y no un error como single
-
-    if (existingProducts !== null) {
-      const updateQuantity = existingProducts.quantity + 1;
-      await supabase
+    try {
+      const cartId = await getOrCreateCart();
+      const { data: existingProducts, error: existError } = await supabase
         .from("CartItems")
-        .update({ quantity: updateQuantity })
-        .eq("product_id", productId)
+        .select()
         .eq("cart_id", cartId)
-        .select();
-    } else {
-      await supabase.from("CartItems").insert({
-        product_id: productId,
-        cart_id: cartId,
-        quantity: 1,
-      });
+        .eq("product_id", productId)
+        .maybeSingle();
+      if (existError) {
+        console.error(
+          "Error buscando producto en carrito:",
+          existError.message,
+        );
+        return;
+      }
+      if (existingProducts !== null) {
+        const updateQuantity = existingProducts.quantity + 1;
+        const { error: updateError } = await supabase
+          .from("CartItems")
+          .update({ quantity: updateQuantity })
+          .eq("product_id", productId)
+          .eq("cart_id", cartId)
+          .select();
+        if (updateError) {
+          console.error("Error actualizando cantidad:", updateError.message);
+        }
+      } else {
+        const { error: insertError } = await supabase.from("CartItems").insert({
+          product_id: productId,
+          cart_id: cartId,
+          quantity: 1,
+        });
+        if (insertError) {
+          console.error("Error insertando producto:", insertError.message);
+        }
+      }
+      await getProductsInCart();
+    } catch (err: any) {
+      console.error("Error general en addProductToCart:", err.message);
     }
-
-    await getProductsInCart();
   };
 
   const removeProductFromCart = async (productId: number | string) => {
-    const cartId = await getOrCreateCart();
-    const { data: existingProducts } = await supabase
-      .from("CartItems")
-      .select()
-      .eq("cart_id", cartId)
-      .eq("product_id", productId)
-      .single();
-
-    if (existingProducts) {
-      await supabase
+    try {
+      const cartId = await getOrCreateCart();
+      const { data: existingProducts, error: existError } = await supabase
         .from("CartItems")
-        .update({ quantity: existingProducts.quantity - 1 })
+        .select()
+        .eq("cart_id", cartId)
         .eq("product_id", productId)
-        .eq("cart_id", cartId);
+        .single();
+      if (existError) {
+        console.error(
+          "Error buscando producto para eliminar:",
+          existError.message,
+        );
+        return;
+      }
+      if (existingProducts) {
+        const { error: updateError } = await supabase
+          .from("CartItems")
+          .update({ quantity: existingProducts.quantity - 1 })
+          .eq("product_id", productId)
+          .eq("cart_id", cartId);
+        if (updateError) {
+          console.error(
+            "Error actualizando cantidad al eliminar:",
+            updateError.message,
+          );
+        }
+      }
+      await getProductsInCart();
+    } catch (err: any) {
+      console.error("Error general en removeProductFromCart:", err.message);
     }
-
-    await getProductsInCart();
   };
 
   const deleteAllProductsInCart = async () => {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData?.user.id;
-
-    const { data: cart } = await supabase
-      .from("Cart")
-      .select()
-      .eq("user_id", userId);
-
-    const cartId = cart[0].id;
-
-    await supabase.from("CartItems").delete().eq("cartId", cartId);
+    try {
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+      if (userError) {
+        console.error("Error obteniendo usuario:", userError.message);
+        return;
+      }
+      const userId = userData?.user.id;
+      if (!userId) throw new Error("Usuario no autenticado");
+      const { data: cart, error: cartError } = await supabase
+        .from("Cart")
+        .select()
+        .eq("user_id", userId);
+      if (cartError) {
+        console.error("Error obteniendo carrito:", cartError.message);
+        return;
+      }
+      const cartId = cart[0].id;
+      const { error: deleteError } = await supabase
+        .from("CartItems")
+        .delete()
+        .eq("cart_id", cartId);
+      if (deleteError) {
+        console.error(
+          "Error eliminando productos del carrito:",
+          deleteError.message,
+        );
+      }
+    } catch (err: any) {
+      console.error("Error general en deleteAllProductsInCart:", err.message);
+    }
   };
 
   return {
