@@ -18,6 +18,8 @@ export default function useUrl() {
   const [products, setProducts] = useState<Products[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
 
+  console.log("probando");
+
   const limit = RESULTS_PER_PAGE;
   const offset = (currentPage - 1) * limit;
 
