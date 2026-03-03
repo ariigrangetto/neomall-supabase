@@ -10,6 +10,8 @@ export default function ListOfProducts() {
   const { isAuthenticated } = useAuth();
   const { addProductToCart, getProductsInCart, cart } = useCartActions();
 
+  console.log("controlar flujo de renders");
+
   useEffect(() => {
     getProductsInCart();
   }, []);
