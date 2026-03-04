@@ -5,8 +5,11 @@ import { MousePointerClick } from "lucide-react";
 import useCartActions from "../hooks/useCartActions.tsx";
 import { useEffect } from "react";
 
+import useLoadingAndError from "../hooks/useLoadingAndError.tsx";
+
 export default function ListOfProducts() {
   const { products } = useUrl();
+  const { loading, error } = useLoadingAndError();
   const { isAuthenticated } = useAuth();
   const { addProductToCart, getProductsInCart, cart } = useCartActions();
 
@@ -16,13 +19,20 @@ export default function ListOfProducts() {
 
   function findItem(productId: number | string) {
     const inCart = cart.find((product) => product.product_id === productId);
-    const text = inCart ? "Agregado al carrito" : "Agregar al carrito";
+    const text = inCart ? "Added to cart" : "Add to cart";
     return { text };
   }
 
   return (
     <>
-      {products && products?.length > 0 ? (
+      {loading && <p>Loading products...</p>}
+      {!loading && error && (
+        <p>Ops! It looks like there's been an error. Try again!</p>
+      )}
+      {!loading && !error && products && products.length === 0 && (
+        <p>No products found.</p>
+      )}
+      {!loading && !error && products && products.length > 0 && (
         <ul>
           {products.map((product) => (
             <li key={product.id}>
@@ -40,9 +50,9 @@ export default function ListOfProducts() {
                     </i>
                   </button>
                 ) : (
-                  <Link to='login'>
+                  <Link to='/login'>
                     <div>
-                      <p>Agregar al carrito</p>
+                      <p>Add to cart</p>
                       <i>
                         <MousePointerClick />
                       </i>
@@ -53,8 +63,6 @@ export default function ListOfProducts() {
             </li>
           ))}
         </ul>
-      ) : (
-        <p>Ops! Parece que ocurrió un error. Vuelva a intentarlo.</p>
       )}
     </>
   );

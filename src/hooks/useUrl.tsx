@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useFilters from "./useFilters";
 import supabase from "../supabase/client.js";
 import type { Products } from "../types.d";
-import useLoading from "./useLoading.js";
+import useLoadingAndError from "./useLoadingAndError.tsx";
 
 const RESULTS_PER_PAGE = 10;
 
@@ -14,21 +14,29 @@ export default function useUrl() {
     currentPage,
     setCurrentPage,
   } = useFilters();
-  const { startLoading, stopLoading } = useLoading();
+  const { startLoading, stopLoading, setError } = useLoadingAndError();
   const [products, setProducts] = useState<Products[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
-
-  console.log("probando");
 
   const limit = RESULTS_PER_PAGE;
   const offset = (currentPage - 1) * limit;
 
   useEffect(() => {
+    startLoading();
     async function getProducts() {
-      startLoading();
       const params = new URLSearchParams();
 
-      const { data: totalProducts } = await supabase.from("Products").select();
+      const { data: totalProducts, error: errorTotalProducts } = await supabase
+        .from("Products")
+        .select();
+
+      if (errorTotalProducts) {
+        setError(true);
+        console.log(
+          "Error fetching total of products" + errorTotalProducts.message,
+        );
+        throw new Error(errorTotalProducts.message);
+      }
 
       const totalPagesCalc = Math.ceil(totalProducts.length / RESULTS_PER_PAGE);
       setTotalPages(totalPagesCalc);
@@ -56,20 +64,27 @@ export default function useUrl() {
 
       const { data, error } = await query;
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        stopLoading();
+        setError(true);
+        console.log("Error fetching products" + error.message);
+        throw new Error(error.message);
+      }
 
       if (data) {
         setProducts(data);
       }
-      stopLoading();
     }
 
     getProducts();
+    stopLoading();
   }, [filters.text, filters.category, currentPage]);
 
   const handleChangePage = (page: number) => {
+    startLoading();
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
+    stopLoading();
     window.scrollTo({ top: 0, behavior: "smooth" });
     setSearchParams(params);
     setCurrentPage(page);
