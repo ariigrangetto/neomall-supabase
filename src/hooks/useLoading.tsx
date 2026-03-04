@@ -11,5 +11,5 @@ export default function useLoading() {
     setLoading(false);
   };
 
-  return { startLoading, stopLoading };
+  return { startLoading, stopLoading, loading };
 }
