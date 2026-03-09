@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import useLoading from "../hooks/useLoading";
+import useLoading from "../hooks/useLoadingAndError.js";
 import { Link, useNavigate } from "react-router";
 import supabase from "../supabase/client.js";
 
