@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import useLoading from "./useLoading";
+import useLoading from "./useLoadingAndError.js";
 import supabase from "../supabase/client.js";
 import { useNavigate } from "react-router";
 
 export default function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const { startLoading, stopLoading } = useLoading();
+  const { setLoading } = useLoading();
   const navigate = useNavigate();
 
   useEffect(() => {
-    startLoading();
+    setLoading(true);
     const checkAuth = async () => {
       const {
         data: { session },
@@ -19,9 +19,9 @@ export default function useAuth() {
       } else {
         setIsAuthenticated(true);
       }
-      stopLoading();
     };
     checkAuth();
+    setLoading(false);
   }, []);
 
   return { isAuthenticated, setIsAuthenticated };

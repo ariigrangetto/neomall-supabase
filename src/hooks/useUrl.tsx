@@ -14,7 +14,7 @@ export default function useUrl() {
     currentPage,
     setCurrentPage,
   } = useFilters();
-  const { startLoading, stopLoading, setError } = useLoadingAndError();
+  const { setLoading, setError } = useLoadingAndError();
   const [products, setProducts] = useState<Products[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
 
@@ -22,69 +22,69 @@ export default function useUrl() {
   const offset = (currentPage - 1) * limit;
 
   useEffect(() => {
-    startLoading();
+    setLoading(true);
     async function getProducts() {
-      const params = new URLSearchParams();
+      try {
 
-      const { data: totalProducts, error: errorTotalProducts } = await supabase
-        .from("Products")
-        .select();
+        const params = new URLSearchParams();
+        const { data: totalProducts, error: errorTotalProducts } = await supabase
+          .from("Products")
+          .select();
 
-      if (errorTotalProducts) {
-        setError(true);
-        console.log(
-          "Error fetching total of products" + errorTotalProducts.message,
-        );
-        throw new Error(errorTotalProducts.message);
-      }
+        if (errorTotalProducts) {
+          setError(true);
+          console.log(
+            "Error fetching total of products" + errorTotalProducts.message,
+          );
+          throw new Error(errorTotalProducts.message);
+        }
 
-      const totalPagesCalc = Math.ceil(totalProducts.length / RESULTS_PER_PAGE);
-      setTotalPages(totalPagesCalc);
+        const totalPagesCalc = Math.ceil(totalProducts.length / RESULTS_PER_PAGE);
+        setTotalPages(totalPagesCalc);
 
-      let query = supabase
-        .from("Products")
-        .select()
-        .range(offset, offset + limit - 1);
+        let query = supabase
+          .from("Products")
+          .select()
+          .range(offset, offset + limit - 1);
 
-      if (filters.text) {
-        params.append("text", filters.text);
-        query = query.ilike("title", `%${filters.text}%`);
-      }
+        if (filters.text) {
+          params.append("text", filters.text);
+          query = query.ilike("title", `%${filters.text}%`);
+        }
 
-      if (filters.category) {
-        params.append("category", filters.category);
-        query = query.eq("category", `${filters.category}`);
-      }
+        if (filters.category) {
+          params.append("category", filters.category);
+          query = query.eq("category", `${filters.category}`);
+        }
 
-      if (currentPage) {
-        params.append("page", currentPage.toString());
-      }
+        if (currentPage) {
+          params.append("page", currentPage.toString());
+        }
 
-      setSearchParams(params);
+        setSearchParams(params);
 
-      const { data, error } = await query;
+        const { data, error } = await query;
 
-      if (error) {
-        stopLoading();
-        setError(true);
-        console.log("Error fetching products" + error.message);
-        throw new Error(error.message);
-      }
+        if (error) {
+          setLoading(false);
+          setError(true);
+          console.log("Error fetching products" + error.message);
+          throw new Error(error.message);
+        }
 
-      if (data) {
-        setProducts(data);
+        if (data) {
+          setProducts(data);
+        }
+      } finally {
+        setLoading(false)
       }
     }
-
     getProducts();
-    stopLoading();
   }, [filters.text, filters.category, currentPage]);
 
   const handleChangePage = (page: number) => {
-    startLoading();
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
-    stopLoading();
     window.scrollTo({ top: 0, behavior: "smooth" });
     setSearchParams(params);
     setCurrentPage(page);
