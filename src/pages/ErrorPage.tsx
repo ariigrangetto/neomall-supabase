@@ -10,12 +10,11 @@ export default function ErrorPage() {
     <main>
       <div>
         <h1>Opps!</h1>
-        <h2>Parece que algo salio mal</h2>
+        <h2>Looks like something went wrong</h2>
         <p>
-          Puede haber sido un error o la pagina a la que intenta ingresarno
-          existe.
+          It may have been an error or the page you are trying to access does not exist.
         </p>
-        <button onClick={goToHome}>Ir al inicio de NeoMall</button>
+        <button onClick={goToHome}>Back to home</button>
       </div>
     </main>
   );
