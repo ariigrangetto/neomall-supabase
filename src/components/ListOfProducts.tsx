@@ -9,7 +9,7 @@ import useLoadingAndError from "../hooks/useLoadingAndError.tsx";
 
 export default function ListOfProducts() {
   const { products } = useUrl();
-  const { loading, error } = useLoadingAndError();
+  const { error, loading } = useLoadingAndError();
   const { isAuthenticated } = useAuth();
   const { addProductToCart, getProductsInCart, cart } = useCartActions();
 
@@ -25,14 +25,11 @@ export default function ListOfProducts() {
 
   return (
     <>
-      {loading && <p>Loading products...</p>}
-      {!loading && error && (
-        <p>Ops! It looks like there's been an error. Try again!</p>
-      )}
-      {!loading && !error && products && products.length === 0 && (
-        <p>No products found.</p>
-      )}
-      {!loading && !error && products && products.length > 0 && (
+      {error ? (
+        <h1>Ups! It looks like theres been an error. Please try again.</h1>
+      ) : loading ? (
+        <h1>Loading products...</h1>
+      ) : products && products?.length > 0 ? (
         <ul>
           {products.map((product) => (
             <li key={product.id}>
@@ -63,6 +60,8 @@ export default function ListOfProducts() {
             </li>
           ))}
         </ul>
+      ) : (
+        <h1 className='search-not-found'>Not search found, try again!</h1>
       )}
     </>
   );
