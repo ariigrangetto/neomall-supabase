@@ -8,6 +8,8 @@ import Register from "./pages/Register.tsx";
 import Profile from "./pages/Profile.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import RootLayout from "./layout/RootLayaout.tsx";
+import Details from "./pages/Details.tsx";
+import NotFound from "./pages/404.tsx";
 
 const getUser = async () => {
   const {
@@ -52,6 +54,11 @@ export const router = createBrowserRouter(
           },
         },
         {
+          path: "/product/:id",
+          element: <Details />,
+          errorElement: <ErrorPage />
+        },
+        {
           path: "/profile",
           element: <Profile />,
           errorElement: <ErrorPage />,
@@ -61,6 +68,10 @@ export const router = createBrowserRouter(
             return { user };
           },
         },
+        {
+          path: "*",
+          element: <NotFound />
+        }
       ],
     },
   ],
