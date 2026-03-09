@@ -3,7 +3,7 @@ export default function Footer() {
   return (
     <footer className='w-full py-4 flex items-center justify-center'>
       <small className='text-black text-sm'>
-        All rights reserved &copy; {year} NeoMall
+        &copy; {year} NeoMall. All rights reserved
       </small>
     </footer>
   );
