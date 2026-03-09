@@ -6,10 +6,9 @@ interface LoadingProviderProp {
 
 interface LoadingProviderStates {
   loading: boolean;
-  startLoading: () => void;
-  stopLoading: () => void;
   setError: React.Dispatch<SetStateAction<boolean>>;
   error: boolean;
+  setLoading: React.Dispatch<SetStateAction<boolean>>;
 }
 
 export const LoadingContext = createContext<LoadingProviderStates | undefined>(
@@ -20,17 +19,9 @@ export default function LoadingProvider({ children }: LoadingProviderProp) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
 
-  const startLoading = () => {
-    setLoading(true);
-  };
-
-  const stopLoading = () => {
-    setLoading(false);
-  };
-
   return (
     <LoadingContext.Provider
-      value={{ loading, startLoading, stopLoading, setError, error }}
+      value={{ loading, setError, error, setLoading }}
     >
       {children}
     </LoadingContext.Provider>
