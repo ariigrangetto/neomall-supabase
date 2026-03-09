@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import supabase from "../supabase/client.js";
-import useLoading from "../hooks/useLoading.js";
+import useLoading from "../hooks/useLoadingAndError.js";
 
 interface State {
   email: string;
