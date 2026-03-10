@@ -7,7 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #071427;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -24,9 +24,10 @@ body {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: #ffffff;
+    background-color: #071427;
   }
+
   button {
     background-color: #f9f9f9;
   }
