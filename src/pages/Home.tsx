@@ -1,7 +1,21 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Footer from "../components/Footer.tsx";
 
 export default function Home() {
+  const navigate = useNavigate();
+
+  const handleClickLogin = () => {
+    navigate("/login")
+  }
+
+  const handleClickRegister = () => {
+    navigate("/register");
+  }
+
+  const handleClickProducts = () => {
+    navigate("/products");
+  }
+
   return (
     <>
       <div className='min-h-screen flex flex-col'>
@@ -9,7 +23,7 @@ export default function Home() {
           <title>NeoMall</title>
           <div className='home-icon-title flex items-center mb-8 justify-center  mt-60 '>
             <img
-              src='/iconNeomallN.jpeg'
+              src='/iconN.png'
               alt='app icon'
               className='home-icon justify-center flex m-auto w-36  '
             />
@@ -26,18 +40,31 @@ export default function Home() {
                 The future of online shopping, simplified for you.
               </p>
             </div>
-            <Link
-              to='/products'
-              className='btn mt-6 px-6 py-2 bg-blue-500 rounded text-white border-0 pointer  hover:bg-blue-600 hover:text-white hover:border-0 hover:duration-500'
-            >
-              Explore products
-            </Link>
-            <Link
-              to='/login'
-              className='btn mt-6 px-6 py-2 bg-blue-500 rounded text-white border-0 pointer  hover:bg-blue-600 hover:text-white hover:border-0 hover:duration-500'
-            >
-              Login
-            </Link>
+          </section>
+          <section>
+
+            <div className="mt-13 justify-center flex m-auto">
+              <button
+                onClick={handleClickProducts}
+                className='btn h-8 px-5 bg-[rgba(7,75,248,1)] rounded text-white border-0 pointer  hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500'
+              >
+                Explore products
+              </button>
+            </div>
+            <div className="flex gap-3 mt-3 justify-center">
+              <button
+                onClick={handleClickLogin}
+                className='btn h-8 px-5 bg-[rgba(7,75,248,1)] rounded text-white border-0 pointer  hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500'
+              >
+                Login
+              </button>
+              <button
+                onClick={handleClickRegister}
+                className='btn h-8 px-5 bg-[rgba(7,75,248,1)] rounded text-white border-0 pointer  hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500'
+              >
+                Register
+              </button>
+            </div>
           </section>
         </main>
         <Footer />
