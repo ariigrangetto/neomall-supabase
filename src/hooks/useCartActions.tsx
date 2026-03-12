@@ -201,6 +201,35 @@ export default function useCartActions() {
     }
   };
 
+  const deleteFromFavorites = async (productId: string | number) => {
+    console.log("delete working")
+    const cartId = await getOrCreateCart();
+    try {
+      const { error } = await supabase.from("CartItems").update({ fav: false }).eq("product_id", productId).eq("cart_id", cartId)
+      if (error) {
+        throw error
+      }
+      await getProductsInCart();
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const addToFavorites = async (productId: string | number) => {
+    await getProductsInCart();
+    console.log("add working")
+    const cartId = await getOrCreateCart();
+    try {
+      const { error } = await supabase.from("CartItems").update({ fav: true }).eq("product_id", productId).eq("cart_id", cartId)
+      if (error) {
+        throw error
+      }
+      await getProductsInCart();
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return {
     getOrCreateCart,
     getProductsInCart,
@@ -208,5 +237,7 @@ export default function useCartActions() {
     removeProductFromCart,
     deleteAllProductsInCart,
     cart,
+    deleteFromFavorites,
+    addToFavorites
   };
 }

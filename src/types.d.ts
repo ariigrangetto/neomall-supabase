@@ -8,6 +8,7 @@ export interface CartItem {
   quantity: number;
   product_id: number | string;
   cart_id: number | string;
+  fav: boolean;
 }
 
 export interface Products {
