@@ -42,7 +42,8 @@ export default function Products() {
     <>
       <title>Neomall products</title>
 
-      <div className="flex flex-wrap items-center justify-between w-full p-4 gap-3">
+
+      <div className="flex flex-wrap items-center justify-between w-full gap-3 p-6">
 
         <div className="flex items-center shrink-0">
           <nav className="flex items-center text-center gap-2">
@@ -110,6 +111,8 @@ export default function Products() {
           </nav>
         </div>
       </div>
+      <div className="border border-gray-950" />
+
       <ListOfProducts />
       <Pagination />
       <Footer />
