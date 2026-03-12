@@ -43,27 +43,18 @@ export default function Home() {
           </section>
           <section>
 
-            <div className="mt-13 justify-center flex m-auto">
+            <div className="mt-10 justify-center flex m-auto">
               <button
                 onClick={handleClickProducts}
-                className='btn h-8 px-5 bg-[rgba(7,75,248,1)] rounded text-white border-0 pointer  hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500'
+                className='btn h-8 border border-[rgba(7,75,248,1)] w-60  rounded-full text-white  pointer  hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500'
               >
                 Explore products
               </button>
             </div>
-            <div className="flex gap-3 mt-3 justify-center">
-              <button
-                onClick={handleClickLogin}
-                className='btn h-8 px-5 bg-[rgba(7,75,248,1)] rounded text-white border-0 pointer  hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500'
-              >
-                Login
-              </button>
-              <button
-                onClick={handleClickRegister}
-                className='btn h-8 px-5 bg-[rgba(7,75,248,1)] rounded text-white border-0 pointer  hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500'
-              >
-                Register
-              </button>
+
+            <div className="flex gap-3 mt-5 justify-center">
+              <p>Already have an account?</p>
+              <p className="text-blue-500 cursor-pointer"><Link to="/login">Login</Link></p>
             </div>
           </section>
         </main>
