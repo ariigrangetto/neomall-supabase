@@ -19,9 +19,9 @@ export default function useAuth() {
       } else {
         setIsAuthenticated(true);
       }
+      setLoading(false);
     };
     checkAuth();
-    setLoading(false);
   }, []);
 
   return { isAuthenticated, setIsAuthenticated };
