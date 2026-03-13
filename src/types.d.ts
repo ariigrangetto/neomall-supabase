@@ -9,6 +9,7 @@ export interface CartItem {
   product_id: number | string;
   cart_id: number | string;
   fav: boolean;
+  Products: Products;
 }
 
 export interface Products {
