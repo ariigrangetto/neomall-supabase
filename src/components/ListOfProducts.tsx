@@ -23,7 +23,7 @@ export default function ListOfProducts() {
     const inCart = cart.find((product) => product.product_id === productId);
     console.log(cart);
     const text = inCart ? "Added to cart" : "Add to cart";
-    const className = inCart ? "flex items-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#00921f] h-8 px-6 rounded-full transition-colors duration-300" : "flex items-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-8 px-6 rounded-full transition-colors duration-300"
+    const className = inCart ? "flex items-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-8 px-6 rounded-full transition-colors duration-300" : "flex items-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-8 px-6 rounded-full transition-colors duration-300"
 
     return { text, className, isFav: inCart?.fav };
   }
@@ -75,8 +75,8 @@ export default function ListOfProducts() {
                             <ShoppingCart size={20} />
                           </button>
                           <button className="flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300">
-                            {itemInfo.isFav ? <button onClick={() => deleteFromFavorites(product.id)}><HeartCrack size={20} />
-                            </button> : <button onClick={() => addToFavorites(product.id)}><Heart size={20} /></button>}
+                            {itemInfo.isFav ? <button className="cursor-pointer" onClick={() => deleteFromFavorites(product.id)}><HeartCrack size={20} />
+                            </button> : <button className="cursor-pointer" onClick={() => addToFavorites(product.id)}><Heart size={20} /></button>}
                           </button>
                         </>
                       ) : (
