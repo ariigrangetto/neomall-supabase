@@ -1,14 +1,9 @@
-import { useEffect } from "react";
+import { Minus, Plus } from "lucide-react";
 import useCartActions from "../hooks/useCartActions.tsx";
 import { Link } from "react-router";
-import { ShoppingCart } from "lucide-react";
 
 export default function Cart() {
-  const { cart, getProductsInCart } = useCartActions();
-
-  useEffect(() => {
-    getProductsInCart();
-  }, [])
+  const { cart, deleteProductFromCart, incrementQuantity, decrementQuantity } = useCartActions();
 
   return (
     <>
@@ -29,7 +24,6 @@ export default function Cart() {
         </div>
       </div>
 
-      <h1>Cart</h1>
       <ul className="flex flex-wrap justify-center gap-10 p-12">
         {cart.map((product) => (
           <li key={product.product_id} className="border border-gray-900/20 p-6 rounded-2xl shadow-[0px_0px_55px_1px] shadow-gray-300/12">
@@ -47,8 +41,18 @@ export default function Cart() {
               <div className="p-2 px-6  flex-grow flex items-center justify-center text-center">
                 <p className="text-[16px] text-justify line-clamp-4">{product.Products.description}</p>
               </div>
+              <div className="flex items-center justify-center gap-2 py-4">
+                <p className="text-center">Quantity: {product.quantity}</p>
+                <p>Total: ${product.Products.price * product.quantity}</p>
+              </div>
+              <div className="flex items-center justify-center gap-2 py-3">
+                <button className="border border-blue-700 text-white px-3 py-3 rounded-full cursor-pointer" onClick={() => incrementQuantity(product.product_id)}><Plus size={20} /></button>
+                <button className="border border-blue-700 text-white px-3 py-3 rounded-full cursor-pointer" onClick={() => decrementQuantity(product.product_id)}><Minus size={20} /></button>
+              </div>
+              <div className="flex items-center justify-center py-3">
+                <button className="border border-red-700 rounded-full px-10 hover:bg-red-700/60 transition-colors hover:text-white hover:ease-in-out duration-500 py-2 text-red-700 cursor-pointer" onClick={() => deleteProductFromCart(product.product_id)}>Remove from cart</button>
+              </div>
             </div>
-            <p>Quantity: {product.quantity}</p>
           </li>
         ))}
       </ul>
