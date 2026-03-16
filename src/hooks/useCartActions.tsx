@@ -41,14 +41,20 @@ export default function useCartActions() {
     };
   }, []);
 
-  const getOrCreateCart = async () => {
+  const getUser = async () => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError) {
-      console.error("Error obteniendo usuario:", userError.message);
+      console.error("Error obteniendo usuario: ", userError.messsage);
       throw userError;
     }
+
     const userId = userData?.user.id;
     if (!userId) throw new Error("Usuario no autenticado");
+    return userId;
+  }
+
+  const getOrCreateCart = async () => {
+    const userId = await getUser();
     const { data: cart, error: cartError } = await supabase
       .from("Cart")
       .select()
@@ -77,7 +83,7 @@ export default function useCartActions() {
       const cartId = await getOrCreateCart();
       const { data, error } = await supabase
         .from("CartItems")
-        .select()
+        .select("*, Products (*)")
         .eq("cart_id", cartId);
       if (error) {
         console.error("Error obteniendo productos del carrito:", error.message);
