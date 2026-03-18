@@ -4,9 +4,7 @@ import FilterProvider from "../src/context/FilterContext.tsx";
 import LoadingProvider from "../src/context/LoadingErrorContext.tsx";
 import CartProvider from "../src/context/CartContext.tsx";
 import ListOfProducts from "../src/components/ListOfProducts.tsx";
-import Login from "../src/pages/Login.tsx";
 import { vi } from "vitest";
-
 import useAuth from "../src/hooks/useAuth.tsx";
 import useUrl from "../src/hooks/useUrl.tsx";
 import useCartActions from "../src/hooks/useCartActions.tsx";
@@ -39,9 +37,21 @@ const mockProduct = {
     stock: 10,
 }
 
+test(`Find "explore our products" in ListOfProducts component`, () => {
+    useAuth.mockReturnValue({ isAuthenticated: true });
+    useUrl.mockReturnValue({ products: [mockProduct] });
+    useLoadingAndError.mockReturnValue({ error: false, loading: false });
+    useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), loadingProductInCart: null, cart: [] });
+
+    render(<MemoryRouter initialEntries={["/products"]}>
+        <ListOfProducts />
+    </MemoryRouter>);
+
+    const heading = screen.getByRole("heading", { name: /explore our products/i });
+    expect(heading).toBeInTheDocument();
+});
+
 const MockLogin = () => <div>Login page loaded</div>
-
-
 
 test(`navigate to login when "add to cart" button is clicked and user is not authenticated`, async () => {
     useAuth.mockReturnValue({ isAuthenticated: false });
