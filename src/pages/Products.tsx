@@ -60,6 +60,7 @@ export default function Products() {
                 type='text'
                 placeholder='Essence Mascara Lash Princess'
                 value={input}
+                aria-label="search"
                 onChange={onChangeText}
                 className="w-60 px-3 py-1 rounded-md text-white focus:outline-none"
               />
@@ -69,7 +70,7 @@ export default function Products() {
             </button>
           </nav>
           <nav>
-            <select onChange={handleSelectCategory} className="outline-0 bg-transparent appearance-none cursor-pointer text-white ">
+            <select onChange={handleSelectCategory} aria-label="Category" className="outline-0 bg-transparent appearance-none cursor-pointer text-white">
               <option className="bg-[#071427]" value=''>Category</option>
               <option className="bg-[#071427]" value='beauty'>Beauty</option>
               <option className="bg-[#071427]" value='fragrances'>Fragrances</option>
@@ -101,12 +102,12 @@ export default function Products() {
         <div className="flex items-center shrink-0 gap-3">
           <nav className="w-10 text-center">
             <Link to="/cart">
-              <ShoppingCart size={25} />
+              <ShoppingCart size={25} aria-label="cart" />
             </Link>
           </nav>
           <nav className="w-10 text-center">
             <Link to="/profile">
-              <img src="/profilePic.png" className="h-9 rounded-full" alt="USER PROFILE PIC" />
+              <img src="/profilePic.png" className="h-9 rounded-full" aria-label="profilePic" alt="USER PROFILE PIC" />
             </Link>
           </nav>
         </div>
