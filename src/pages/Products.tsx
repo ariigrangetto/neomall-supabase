@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import SearchSection from "../components/SearchSection.jsx";
 import Pagination from "../components/Pagination.js";
 import ListOfProducts from "../components/ListOfProducts.js";
@@ -5,12 +6,22 @@ import { Link } from "react-router";
 import Footer from "../components/Footer.js";
 import useFilters from "../hooks/useFilters.js";
 import { useRef, useState } from "react";
-import { Search, ShoppingCart } from "lucide-react";
+import { Search, ShoppingCart, X } from "lucide-react";
 
 export default function Products() {
   const { setFilters } = useFilters();
   const [input, setInput] = useState<string>("");
-  let timeout = useRef<number | null>(null);
+  const timeout = useRef<number | null>(null);
+  const [writing, setWriting] = useState(false);
+
+  const handleClearInputSearch = () => {
+    setInput("");
+    setWriting(false);
+    setFilters((prevState) => ({
+      ...prevState,
+      text: "",
+    }));
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +30,7 @@ export default function Products() {
   const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setInput(text);
+    setWriting(true);
 
     if (timeout.current) {
       clearTimeout(timeout.current);
@@ -56,16 +68,22 @@ export default function Products() {
         <div className="flex items-center justify-center shrink-0 gap-7">
           <nav className="flex items-center ">
             <form action='submit' onSubmit={handleSubmit}>
-              <input
-                type='text'
-                placeholder='Essence Mascara Lash Princess'
-                value={input}
-                aria-label="search"
-                onChange={onChangeText}
-                className="w-60 px-3 py-1 rounded-md text-white focus:outline-none"
-              />
+              <div className="flex items-center gap-2 border border-gray-600/30 rounded-full py-1 px-3">
+
+                <input
+                  type='text'
+                  placeholder='Essence Mascara Lash Princess'
+                  value={input}
+                  aria-label="search"
+                  onChange={onChangeText}
+                  className="w-60 px-3 py-1 rounded-md text-white focus:outline-none"
+                />
+
+
+                {writing ? <button onClick={() => handleClearInputSearch()} className="cursor-pointer"><X size={20} /></button> : ""}
+              </div>
             </form>
-            <button className="p-1 hover:text-gray-300 transition-colors cursor-pointer">
+            <button className="p-2 hover:text-gray-300 transition-colors cursor-pointer">
               <Search size={18} />
             </button>
           </nav>
