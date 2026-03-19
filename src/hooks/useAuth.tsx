@@ -18,7 +18,9 @@ export default function useAuth() {
         navigate("/login");
       } else {
         setIsAuthenticated(true);
-        navigate("/products");
+        if (window.location.pathname === "/") {
+          navigate("/products");
+        }
       }
       setLoading(false);
     };
