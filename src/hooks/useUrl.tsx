@@ -14,37 +14,23 @@ export default function useUrl() {
     currentPage,
     setCurrentPage,
   } = useFilters();
-  const { setLoading, setError } = useLoadingAndError();
-  const [products, setProducts] = useState<Products[]>();
+  const { setLoading, setError, loading, error } = useLoadingAndError();
+  const [products, setProducts] = useState<Products[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
 
   const limit = RESULTS_PER_PAGE;
   const offset = (currentPage - 1) * limit;
 
   useEffect(() => {
-    setLoading(true);
     async function getProducts() {
+      setLoading(true);
       try {
 
         const params = new URLSearchParams();
-        const { data: totalProducts, error: errorTotalProducts } = await supabase
-          .from("Products")
-          .select();
-
-        if (errorTotalProducts) {
-          setError(true);
-          console.log(
-            "Error fetching total of products" + errorTotalProducts.message,
-          );
-          throw new Error(errorTotalProducts.message);
-        }
-
-        const totalPagesCalc = Math.ceil(totalProducts.length / RESULTS_PER_PAGE);
-        setTotalPages(totalPagesCalc);
 
         let query = supabase
           .from("Products")
-          .select()
+          .select("*", { count: "exact" })
           .range(offset, offset + limit - 1);
 
         if (filters.text) {
@@ -63,7 +49,10 @@ export default function useUrl() {
 
         setSearchParams(params);
 
-        const { data, error } = await query;
+        const { data, count, error } = await query;
+
+        const totalPagesCalc = Math.ceil(count / RESULTS_PER_PAGE);
+        setTotalPages(totalPagesCalc);
 
         if (error) {
           setLoading(false);
@@ -94,5 +83,7 @@ export default function useUrl() {
     products,
     handleChangePage,
     totalPages,
+    loading,
+    error
   };
 }

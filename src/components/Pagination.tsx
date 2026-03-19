@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import useFilters from "../hooks/useFilters.js";
 import useUrl from "../hooks/useUrl.js";
