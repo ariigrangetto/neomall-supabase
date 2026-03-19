@@ -24,7 +24,7 @@ export default function FilterProvider({ children }: FilterProviderProp) {
     Number(searchParams.get("page") || 1),
   );
   const [filters, setFilters] = useState<FiltersType>({
-    text: searchParams.get("title") || "",
+    text: searchParams.get("text") || "",
     category: searchParams.get("category") || "",
   });
 
