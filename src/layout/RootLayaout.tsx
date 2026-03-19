@@ -1,12 +1,15 @@
 import { Outlet } from "react-router";
-import FilterProvider from "../context/FilterContext";
-import LoadingProvider from "../context/LoadingErrorContext";
+import FilterProvider from "../context/FilterContext.tsx";
+import LoadingProvider from "../context/LoadingErrorContext.tsx";
+import CartProvider from "../context/CartContext.tsx";
 
 export default function RootLayout() {
   return (
     <FilterProvider>
       <LoadingProvider>
-        <Outlet />
+        <CartProvider>
+          <Outlet />
+        </CartProvider>
       </LoadingProvider>
     </FilterProvider>
   );
