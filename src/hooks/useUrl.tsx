@@ -15,7 +15,7 @@ export default function useUrl() {
     setCurrentPage,
   } = useFilters();
   const { setLoading, setError, loading, error } = useLoadingAndError();
-  const [products, setProducts] = useState<Products[]>([]);
+  const [products, setProducts] = useState<Products[]>();
   const [totalPages, setTotalPages] = useState<number>(0);
 
   const limit = RESULTS_PER_PAGE;
