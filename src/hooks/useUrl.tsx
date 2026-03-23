@@ -43,7 +43,7 @@ export default function useUrl() {
           query = query.eq("category", `${filters.category}`);
         }
 
-        if (currentPage) {
+        if (currentPage && !window.location.pathname.includes("/productDetail/")) {
           params.append("page", currentPage.toString());
         }
 
@@ -61,6 +61,7 @@ export default function useUrl() {
           throw new Error(error.message);
         }
 
+
         if (data) {
           setProducts(data);
         }
@@ -72,6 +73,9 @@ export default function useUrl() {
   }, [filters.text, filters.category, currentPage]);
 
   const handleChangePage = (page: number) => {
+    if (window.location.pathname.includes("/productDetail/")) {
+      return;
+    }
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
     window.scrollTo({ top: 0, behavior: "smooth" });
