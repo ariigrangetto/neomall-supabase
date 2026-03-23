@@ -90,6 +90,10 @@ export default function Register() {
                     "&:hover fieldset": { borderColor: "white", transition: "all 0.3s ease" },
                     "&.Mui-focused fieldset": { borderColor: "white", transition: "all 0.3s ease" },
                   },
+                  "& input:-webkit-autofill": {
+                    transition: "background-color 5000s ease-in-out 0s",
+                    WebkitTextFillColor: "lightgray",
+                  },
                 }}
               />
               <TextField
@@ -106,6 +110,10 @@ export default function Register() {
                     "& fieldset": { borderColor: "gray" },
                     "&:hover fieldset": { borderColor: "white", transition: "all 0.3s ease" },
                     "&.Mui-focused fieldset": { borderColor: "white", transition: "all 0.3s ease" },
+                  },
+                  "& input:-webkit-autofill": {
+                    transition: "background-color 5000s ease-in-out 0s",
+                    WebkitTextFillColor: "lightgray",
                   },
                 }}
               />
@@ -124,6 +132,10 @@ export default function Register() {
                     "&:hover fieldset": { borderColor: "white", transition: "all 0.3s ease" },
                     "&.Mui-focused fieldset": { borderColor: "white", transition: "all 0.3s ease" },
                   },
+                  "& input:-webkit-autofill": {
+                    transition: "background-color 5000s ease-in-out 0s",
+                    WebkitTextFillColor: "lightgray",
+                  },
                 }}
               />
               <TextField
@@ -140,6 +152,10 @@ export default function Register() {
                     "& fieldset": { borderColor: "gray" },
                     "&:hover fieldset": { borderColor: "white", transition: "all 0.3s ease" },
                     "&.Mui-focused fieldset": { borderColor: "white", transition: "all 0.3s ease" },
+                  },
+                  "& input:-webkit-autofill": {
+                    transition: "background-color 5000s ease-in-out 0s",
+                    WebkitTextFillColor: "lightgray",
                   },
                 }}
                 InputProps={{
