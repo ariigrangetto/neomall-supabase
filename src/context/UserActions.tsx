@@ -8,7 +8,8 @@ interface UserContextProps {
     login: (email: string, password: string) => Promise<Error | undefined>;
     register: (email: string, password: string, name: string, lastname: string) => Promise<Error | undefined>;
     logout: () => Promise<Error | undefined>;
-    resetPasswordForEmail: (email: string) => Promise<Error | undefined>;
+    sendPasswordResetEmail: (email: string) => Promise<Error | null>;
+    updateUserPassword: (newPassword: string) => Promise<Error | null>;
     isAuthenticated: boolean;
     setIsAuthenticated: Dispatch<React.SetStateAction<boolean>>
 
@@ -22,16 +23,24 @@ export default function UserProvider({ children }: { children: React.ReactNode }
 
     useEffect(() => {
         async function checkSession() {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-            console.log(window.location.pathname)
-            if (!isAuthenticated && window.location.pathname !== "/") {
-                navigate("/login");
-            }
-            if (session) {
-                navigate("/products")
-            }
+            await supabase.auth.onAuthStateChange((event, session) => {
+                console.log(event)
+                if (event === "INITIAL_SESSION" && isAuthenticated) {
+                    navigate("/products");
+                }
+                if (event === "SIGNED_IN" && isAuthenticated) {
+                    navigate("/products");
+                }
+                if (event === "SIGNED_OUT") {
+                    navigate("/login");
+                }
+                if (event === "PASSWORD_RECOVERY") {
+                    navigate("/resetPassword");
+                }
+                if (event === "USER_UPDATED") {
+                    navigate("/profile");
+                }
+            })
         }
         checkSession();
     }, [isAuthenticated])
@@ -68,15 +77,21 @@ export default function UserProvider({ children }: { children: React.ReactNode }
         return;
     }
 
-    const resetPasswordForEmail = async (email: string) => {
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
-        if (error) return error;
-        return;
+    const sendPasswordResetEmail = async (email: string) => {
+        console.log(email)
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + "/resetPassword"
+        });
+        return error;
     }
 
+    const updateUserPassword = async (newPassword: string) => {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        return error;
+    }
 
     return (
-        <UserContext.Provider value={{ login, register, logout, resetPasswordForEmail, isAuthenticated, setIsAuthenticated }}>
+        <UserContext.Provider value={{ login, register, logout, sendPasswordResetEmail, updateUserPassword, isAuthenticated, setIsAuthenticated }}>
             {children}
         </UserContext.Provider>
     )
