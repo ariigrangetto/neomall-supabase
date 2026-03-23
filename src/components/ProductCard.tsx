@@ -1,6 +1,7 @@
 import type { Products } from "../types.d.ts";
 import React from "react";
 import { Heart, HeartCrack, MousePointerClick, ShoppingCart } from "lucide-react";
+import { Link } from "react-router";
 
 interface ProductCartProps {
     key: number | string;
@@ -34,7 +35,7 @@ export const ProductCard = React.memo(({
                     <p className="text-[16px] text-justify line-clamp-4">{product.description}</p>
                 </div>
 
-                <div className="p-4 flex justify-center mt-auto py-9">
+                <div className="flex justify-center mt-auto py-6">
                     {isAuthenticated ? (
                         <>
                             <button onClick={() => addProductToCart(product.id)} className={inCartInfo.className}>
@@ -55,6 +56,9 @@ export const ProductCard = React.memo(({
                             <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300" onClick={() => handleClickLogin()}><Heart size={20} /></button>
                         </>
                     )}
+                </div>
+                <div className="flex justify-center items-center py-6 ">
+                    <Link to={`/productDetail/${product.id}`} className="cursor-pointer flex justify-center items-center text-white font-semibold hover:text-gray-200">See details</Link>
                 </div>
             </div>
         </li >
