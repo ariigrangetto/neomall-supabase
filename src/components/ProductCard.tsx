@@ -41,19 +41,22 @@ export const ProductCard = React.memo(({
                                 {isLoading ? "Adding to cart..." : inCartInfo.text}
                                 <ShoppingCart size={20} />
                             </button>
-                            <button className="flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300">
-                                {inCartInfo.isFav ? <button className="cursor-pointer" onClick={() => deleteFromFavorites(product.id)}><HeartCrack size={20} />
-                                </button> : <button className="cursor-pointer" onClick={() => addToFavorites(product.id)}><Heart size={20} /></button>}
-                            </button>
+
+                            {inCartInfo.isFav ? <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300" onClick={() => deleteFromFavorites(product.id)}><HeartCrack size={20} />
+                            </button> : <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300" onClick={() => addToFavorites(product.id)}><Heart size={20} /></button>}
+
                         </>
                     ) : (
-                        <button onClick={handleClickLogin} className="flex outline-0 border-0 items-center gap-2 text-white bg-[rgba(7,75,248,1)] h-8 px-6 rounded-full font-semibold cursor-pointer hover:text-gray-200 hover:bg-[#0335b4] transition-colors duration-300">
-                            <span>Add to cart</span>
-                            <MousePointerClick size={20} />
-                        </button>
+                        <>
+                            <button onClick={() => handleClickLogin()} className="flex outline-0 border-0 items-center gap-2 text-white bg-[rgba(7,75,248,1)] h-8 px-6 rounded-full font-semibold cursor-pointer hover:text-gray-200 hover:bg-[#0335b4] transition-colors duration-300">
+                                <span>Add to cart</span>
+                                <MousePointerClick size={20} />
+                            </button>
+                            <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300" onClick={() => handleClickLogin()}><Heart size={20} /></button>
+                        </>
                     )}
                 </div>
             </div>
-        </li>
+        </li >
     )
 })
