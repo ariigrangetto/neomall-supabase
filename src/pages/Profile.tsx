@@ -1,14 +1,18 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, useNavigate } from "react-router";
 import Footer from "../components/Footer.tsx";
 import supabase from "../supabase/client.js"
-import { ShoppingCart } from "lucide-react";
+import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useUserActions } from "../hooks/useUserActions.js";
+import { useRef, useState } from "react";
 
 export default function Profile() {
   const { user } = useLoaderData();
   const { setIsAuthenticated } = useUserActions();
-  const { logout, resetPasswordForEmail } = useUserActions();
+  const { logout, sendPasswordResetEmail } = useUserActions();
+  const [recoveryMessage, setRecoveryMessage] = useState<string>("");
+  const resetId = useRef<number | null>(null);
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     const error = await logout();
@@ -19,18 +23,32 @@ export default function Profile() {
   }
 
   const handleResetPassword = async () => {
-    const error = await resetPasswordForEmail(user.email);
+    const error = await sendPasswordResetEmail(user.email);
     if (error) {
       console.log(error);
+      return;
     }
+    setRecoveryMessage("Password reset email sent! Check your inbox.");
+
+    if (resetId.current) {
+      clearTimeout(resetId.current);
+    }
+    resetId.current = setTimeout(() => {
+      setRecoveryMessage("");
+    }, 5000);
+
+  }
+
+  const handleRedirectProducts = () => {
+    navigate("/products");
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       <title>Profile</title>
       <div className="flex flex-wrap items-center justify-between w-full gap-3 p-6">
-
         <div className="flex items-center shrink-0">
+          <button className="cursor-pointer" onClick={() => handleRedirectProducts()}><ArrowLeft /></button>
           <nav className="flex items-center text-center gap-2">
             <img src="/iconN.png" alt="ICON IMAGE" className="h-8" />
             <h1 className="font-bold text-xl">Neomall</h1>
@@ -47,7 +65,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <main className="flex-1 justify-center m-auto flex">
+      <main className="flex-grow flex items-center justify-center">
         <div className="flex flex-col items-center justify-center border border-gray-300/10 rounded-lg p-8 w-150 mx-auto">
           <img src="/profilePic.png" alt="profile image" className="h-30 rounded-full" />
           <div className="text-center p-4 mt-5">
@@ -59,15 +77,17 @@ export default function Profile() {
 
             Sign Out
           </button>
-          <p className="mt-5">Forgot your password?</p>
-          <button className="" onClick={() => handleResetPassword()}>
 
-            Reset Password
-          </button>
+          <div className="flex flex-col items-center justify-center">
+            <p className="mt-5">Forgot your password?</p>
+            <button className="cursor-pointer text-blue-700 text-center" onClick={() => handleResetPassword()}>
+              Reset Password
+            </button>
+          </div>
+          {recoveryMessage && <p className="text-green-500 text-center">{recoveryMessage}</p>}
         </div>
-      </main>
-
+      </main >
       <Footer />
-    </div>
+    </div >
   );
 }
