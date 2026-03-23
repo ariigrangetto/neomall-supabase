@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import supabase from "../supabase/client.js"
 import type { CartItem } from "../types.d.ts";
 
@@ -12,6 +12,7 @@ interface CartContextType {
     incrementQuantity: (productId: number | string) => void;
     deleteProductFromCart: (productId: number | string) => void;
     decrementQuantity: (productId: number | string) => void;
+    findItem: (productId: number | string) => { text: string, className: string, isFav: boolean };
 
 }
 
@@ -305,8 +306,26 @@ export default function CartProvider({ children }: CartProviderProps) {
         }
     }
 
+    const cartItemsMap = useMemo(() => {
+        const map = new Map();
+        if (cart) {
+            cart.forEach((item) => {
+                map.set(item.product_id, item);
+            })
+            return map;
+        }
+    }, [cart]);
+
+    function findItem(productId: number | string) {
+        const inCart = cartItemsMap?.get(productId);
+        const text = inCart ? "Added to cart" : "Add to cart";
+        const className = inCart ? "flex items-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-8 px-6 rounded-full transition-colors duration-300" : "flex items-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-8 px-6 rounded-full transition-colors duration-300"
+
+        return { text, className, isFav: inCart?.fav };
+    }
+
     return (
-        <CartContext.Provider value={{ cart, addProductToCart, incrementQuantity, deleteProductFromCart, decrementQuantity, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, deleteProductFromCart }}>
+        <CartContext.Provider value={{ cart, addProductToCart, incrementQuantity, deleteProductFromCart, decrementQuantity, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, deleteProductFromCart, findItem }}>
             {children}
         </CartContext.Provider>
     )
