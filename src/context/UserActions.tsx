@@ -1,6 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { createContext } from "react";
+import { createContext, useEffect, useState, type Dispatch } from "react";
 import supabase from "../supabase/client.js";
+import { useNavigate } from "react-router";
 
 
 interface UserContextProps {
@@ -8,12 +9,32 @@ interface UserContextProps {
     register: (email: string, password: string, name: string, lastname: string) => Promise<Error | undefined>;
     logout: () => Promise<Error | undefined>;
     resetPasswordForEmail: (email: string) => Promise<Error | undefined>;
+    isAuthenticated: boolean;
+    setIsAuthenticated: Dispatch<React.SetStateAction<boolean>>
 
 }
 
 export const UserContext = createContext<UserContextProps | undefined>(undefined);
 
 export default function UserProvider({ children }: { children: React.ReactNode }) {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        async function checkSession() {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            console.log(window.location.pathname)
+            if (!isAuthenticated && window.location.pathname !== "/") {
+                navigate("/login");
+            }
+            if (session) {
+                navigate("/products")
+            }
+        }
+        checkSession();
+    }, [isAuthenticated])
 
     const login = async (email: string, password: string) => {
         const { error } = await supabase.auth.signInWithPassword({
@@ -55,7 +76,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
 
 
     return (
-        <UserContext.Provider value={{ login, register, logout, resetPasswordForEmail }}>
+        <UserContext.Provider value={{ login, register, logout, resetPasswordForEmail, isAuthenticated, setIsAuthenticated }}>
             {children}
         </UserContext.Provider>
     )
