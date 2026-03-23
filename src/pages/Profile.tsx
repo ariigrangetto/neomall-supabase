@@ -2,15 +2,16 @@
 import { Link, useLoaderData } from "react-router";
 import Footer from "../components/Footer.tsx";
 import supabase from "../supabase/client.js"
-import useAuth from "../hooks/useAuth.tsx";
 import { ShoppingCart } from "lucide-react";
+import { useUserActions } from "../hooks/useUserActions.js";
 
 export default function Profile() {
   const { user } = useLoaderData();
-  const { setIsAuthenticated } = useAuth();
+  const { setIsAuthenticated } = useUserActions();
+  const { logout, resetPasswordForEmail } = useUserActions();
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
+    const error = await logout();
     if (error) {
       console.log(error);
     }
@@ -18,13 +19,12 @@ export default function Profile() {
   }
 
   const handleResetPassword = async () => {
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email);
+    const error = await resetPasswordForEmail(user.email);
     if (error) {
       console.log(error);
     }
   }
 
-  console.log(user);
   return (
     <div className="min-h-screen flex flex-col">
       <title>Profile</title>
