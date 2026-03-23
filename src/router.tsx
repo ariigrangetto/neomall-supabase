@@ -27,12 +27,6 @@ export const router = createBrowserRouter(
         {
           path: "/",
           element: <Home />,
-          loader: async () => {
-            const { data: session } = await supabase.auth.getSession();
-            if (session) {
-              return redirect("/products");
-            }
-          },
           errorElement: <ErrorPage />,
         },
         {
