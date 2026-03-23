@@ -6,10 +6,11 @@ import useCartActions from "../hooks/useCartActions.tsx";
 import { useMemo } from "react";
 import { PackageX, AlertCircle, Loader2 } from "lucide-react";
 import { ProductCard } from "./ProductCard.tsx";
+import { useUserActions } from "../hooks/useUserActions.tsx";
 
 export default function ListOfProducts() {
   const { products, loading, error } = useUrl();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useUserActions();
   const { addProductToCart, loadingProductInCartId, cart, addToFavorites, deleteFromFavorites } = useCartActions();
   const navigate = useNavigate();
 
