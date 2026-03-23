@@ -2,7 +2,7 @@
 import SearchSection from "../components/SearchSection.jsx";
 import Pagination from "../components/Pagination.js";
 import ListOfProducts from "../components/ListOfProducts.js";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Footer from "../components/Footer.js";
 import useFilters from "../hooks/useFilters.js";
 import { useRef, useState } from "react";
@@ -13,6 +13,7 @@ export default function Products() {
   const [input, setInput] = useState<string>("");
   const timeout = useRef<number | null>(null);
   const [writing, setWriting] = useState(false);
+  const navigate = useNavigate();
 
   const handleClearInputSearch = () => {
     setInput("");
@@ -59,7 +60,9 @@ export default function Products() {
 
         <div className="flex items-center shrink-0">
           <nav className="flex items-center text-center gap-2">
-            <img src="/iconN.png" alt="ICON IMAGE" className="h-8" />
+            <button className="cursor-pointer" onClick={() => navigate("/")}>
+              <img src="/iconN.png" alt="ICON IMAGE" className="h-8" />
+            </button>
             <h1 className="font-bold text-xl">Neomall</h1>
           </nav>
         </div>
