@@ -10,6 +10,7 @@ import ErrorPage from "./pages/ErrorPage.tsx";
 import RootLayout from "./layout/RootLayaout.tsx";
 import Details from "./pages/Details.tsx";
 import NotFound from "./pages/404.tsx";
+import ResetPassword from "./pages/resetPassword.tsx";
 
 const getUser = async () => {
   const {
@@ -55,7 +56,7 @@ export const router = createBrowserRouter(
           },
         },
         {
-          path: "/product/:id",
+          path: "/productDetail/:id",
           element: <Details />,
           errorElement: <ErrorPage />
         },
@@ -68,6 +69,16 @@ export const router = createBrowserRouter(
             if (!user) return redirect("/login");
             return { user };
           },
+        },
+        {
+          path: "/resetPassword",
+          element: <ResetPassword />,
+          errorElement: <ErrorPage />,
+          loader: async () => {
+            const user = await getUser();
+            if (!user) return redirect("/login");
+            return { user };
+          }
         },
         {
           path: "*",
