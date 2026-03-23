@@ -11,26 +11,8 @@ import { useUserActions } from "../hooks/useUserActions.tsx";
 export default function ListOfProducts() {
   const { products, loading, error } = useUrl();
   const { isAuthenticated } = useUserActions();
-  const { addProductToCart, loadingProductInCartId, cart, addToFavorites, deleteFromFavorites } = useCartActions();
+  const { addProductToCart, loadingProductInCartId, findItem, addToFavorites, deleteFromFavorites } = useCartActions();
   const navigate = useNavigate();
-
-  const cartItemsMap = useMemo(() => {
-    const map = new Map();
-    if (cart) {
-      cart.forEach((item) => {
-        map.set(item.product_id, item);
-      })
-      return map;
-    }
-  }, [cart]);
-
-  function findItem(productId: number | string) {
-    const inCart = cartItemsMap?.get(productId);
-    const text = inCart ? "Added to cart" : "Add to cart";
-    const className = inCart ? "flex items-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-8 px-6 rounded-full transition-colors duration-300" : "flex items-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-8 px-6 rounded-full transition-colors duration-300"
-
-    return { text, className, isFav: inCart?.fav };
-  }
 
   const handleClickLogin = () => {
     navigate("/login")
