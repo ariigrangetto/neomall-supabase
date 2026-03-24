@@ -21,7 +21,25 @@ export const ProductCard = React.memo(({
     return (
         <li className="flex bg-[rgba(23,23,23,1)] rounded text-white " key={key}>
             <div className="w-100 rounded shadow-md overflow-hidden flex flex-col">
-                <div className="flex justify-center p-4 h-64">
+                <div className="relative flex justify-center p-4 h-64 w-full">
+                    <div className="absolute top-4 right-4 z-10">
+                        {/* FIX CON LA NUEVA TABLA DE FAVORITOS */}
+                        {isAuthenticated ? (
+                            inCartInfo.isFav ? (
+                                <button className="cursor-pointer flex justify-center items-center bg-black/20 hover:bg-black/40 text-white font-semibold border-0 outline-0 p-2 rounded-full transition-colors duration-300 backdrop-blur-sm" onClick={() => deleteFromFavorites(product.id)}>
+                                    <HeartCrack size={20} color="lightblue" fill="lightblue" />
+                                </button>
+                            ) : (
+                                <button className="cursor-pointer flex justify-center items-center bg-black/20 hover:bg-black/40 text-white font-semibold border-0 outline-0 p-2 rounded-full transition-colors duration-300 backdrop-blur-sm" onClick={() => addToFavorites(product.id)}>
+                                    <Heart size={20} />
+                                </button>
+                            )
+                        ) : (
+                            <button className="cursor-pointer flex justify-center items-center bg-black/20 hover:bg-black/40 text-white font-semibold border-0 outline-0 p-2 rounded-full transition-colors duration-300 backdrop-blur-sm" onClick={() => handleClickLogin()}>
+                                <Heart size={20} />
+                            </button>
+                        )}
+                    </div>
                     <img src={product.image} alt={product.title} className="max-h-full object-contain" />
                 </div>
 
@@ -37,27 +55,26 @@ export const ProductCard = React.memo(({
 
                 <div className="flex justify-center mt-auto py-6">
                     {isAuthenticated ? (
-                        <>
-                            <button onClick={() => addProductToCart(product.id)} className={inCartInfo.className}>
-                                {isLoading ? "Adding to cart..." : inCartInfo.text}
-                                <ShoppingCart size={20} />
-                            </button>
-
-                            {inCartInfo.isFav ? <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300" onClick={() => deleteFromFavorites(product.id)}><HeartCrack size={20} />
-                            </button> : <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300" onClick={() => addToFavorites(product.id)}><Heart size={20} /></button>}
-
-                        </>
+                        <div className="flex justify-center flex-col gap-5 w-[300px]">
+                            <div className="flex items-center justify-center">
+                                <button onClick={() => addProductToCart(product.id)} className={inCartInfo.className}>
+                                    {isLoading ? "Adding to cart..." : inCartInfo.text}
+                                    <ShoppingCart size={20} />
+                                </button>
+                            </div>
+                        </div>
                     ) : (
-                        <>
-                            <button onClick={() => handleClickLogin()} className="flex outline-0 border-0 items-center gap-2 text-white bg-[rgba(7,75,248,1)] h-8 px-6 rounded-full font-semibold cursor-pointer hover:text-gray-200 hover:bg-[#0335b4] transition-colors duration-300">
-                                <span>Add to cart</span>
-                                <MousePointerClick size={20} />
-                            </button>
-                            <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 h-8 px-3 rounded-full transition-colors duration-300" onClick={() => handleClickLogin()}><Heart size={20} /></button>
-                        </>
+                        <div className="flex justify-center flex-col gap-5 w-[300px]">
+                            <div className="flex items-center justify-center">
+                                <button onClick={() => handleClickLogin()} className="flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-10 px-10 rounded transition-colors duration-300">
+                                    <span className="text-[17px]">Add to cart</span>
+                                    <MousePointerClick size={20} />
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </div>
-                <div className="flex justify-center items-center py-6 ">
+                <div className="flex justify-center items-center py-1 mb-4 ">
                     <Link to={`/productDetail/${product.id}`} className="cursor-pointer flex justify-center items-center text-white font-semibold hover:text-gray-200">See details</Link>
                 </div>
             </div>

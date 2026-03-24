@@ -42,15 +42,12 @@ export default function Details() {
       <div className="border border-gray-950"></div>
 
       <div className="min-h-screen flex flex-col">
-
-        <main className="flex-grow flex items-center justify-center">
-          {item ? <ItemDetails item={item} isLoading={loading} /> :
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-xl">Loading product or product not found...</p>
-              <Loader2 className="w-12 h-12 text-[rgba(7,75,248,1)] animate-spin" />
-            </div>
-          }
-        </main>
+        {item ? <ItemDetails item={item} isLoading={loading} /> :
+          <div className="flex flex-col items-center justify-center gap-4">
+            <p className="text-xl">Loading product or product not found...</p>
+            <Loader2 className="w-12 h-12 text-[rgba(7,75,248,1)] animate-spin" />
+          </div>
+        }
       </div>
       <Footer />
     </>
