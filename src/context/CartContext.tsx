@@ -1,18 +1,19 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import supabase from "../supabase/client.js"
-import type { CartItem } from "../types.d.ts";
+import type { CartItem, Rating } from "../types.d.ts";
 
 interface CartContextType {
     cart: CartItem[];
     loadingProductInCartId: number | string | null;
-    addProductToCart: (productId: number | string) => void;
-    deleteAllProductsInCart: () => void;
-    addToFavorites: (productId: number | string) => void;
-    deleteFromFavorites: (productId: number | string) => void;
-    incrementQuantity: (productId: number | string) => void;
-    deleteProductFromCart: (productId: number | string) => void;
-    decrementQuantity: (productId: number | string) => void;
+    addProductToCart: (productId: number | string) => Promise<void | undefined>;
+    deleteAllProductsInCart: () => Promise<void | undefined>;
+    addToFavorites: (productId: number | string) => Promise<void | undefined>;
+    deleteFromFavorites: (productId: number | string) => Promise<void | undefined>;
+    incrementQuantity: (productId: number | string) => Promise<void | undefined>;
+    deleteProductFromCart: (productId: number | string) => Promise<void | undefined>;
+    decrementQuantity: (productId: number | string) => Promise<void | undefined>;
     findItem: (productId: number | string) => { text: string, className: string, isFav: boolean };
+    getProductReviews: (productId: number | string) => Promise<Rating[] | undefined>;
 
 }
 
@@ -306,6 +307,15 @@ export default function CartProvider({ children }: CartProviderProps) {
         }
     }
 
+    const getProductReviews = async (productId: string | number) => {
+        const { data, error } = await supabase.from("Rating").select().eq("product_id", productId)
+        if (error) {
+            throw error
+        }
+        console.log(data);
+        return data
+    }
+
     const cartItemsMap = useMemo(() => {
         const map = new Map();
         if (cart) {
@@ -319,13 +329,13 @@ export default function CartProvider({ children }: CartProviderProps) {
     function findItem(productId: number | string) {
         const inCart = cartItemsMap?.get(productId);
         const text = inCart ? "Added to cart" : "Add to cart";
-        const className = inCart ? "flex items-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-8 px-6 rounded-full transition-colors duration-300" : "flex items-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-8 px-6 rounded-full transition-colors duration-300"
+        const className = inCart ? "flex items-center justify-center text-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-8 px-6 rounded transition-colors duration-300" : "flex items-center text-center justify-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-8 px-6 rounded-full transition-colors duration-300"
 
         return { text, className, isFav: inCart?.fav };
     }
 
     return (
-        <CartContext.Provider value={{ cart, addProductToCart, incrementQuantity, deleteProductFromCart, decrementQuantity, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, deleteProductFromCart, findItem }}>
+        <CartContext.Provider value={{ cart, addProductToCart, incrementQuantity, deleteProductFromCart, decrementQuantity, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, deleteProductFromCart, getProductReviews, findItem }}>
             {children}
         </CartContext.Provider>
     )
