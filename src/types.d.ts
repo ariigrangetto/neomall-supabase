@@ -22,7 +22,7 @@ export interface Products {
   rating: number;
   stock: number;
   brand: string;
-  warraty: string;
+  warranty: string;
   shipping: string;
   availability: string;
   image: string;
@@ -39,6 +39,6 @@ export interface Rating {
   comment: string;
   reviewerName: string;
   reviewerEmail: string;
-  created_at: string;
+  date: string;
   product_id: number | string;
 }
