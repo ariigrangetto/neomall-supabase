@@ -42,3 +42,10 @@ export interface Rating {
   date: string;
   product_id: number | string;
 }
+
+export interface WishList {
+  id: number | string;
+  user_id: number | string;
+  product_id: number | string;
+  date: string;
+}
