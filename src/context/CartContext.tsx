@@ -1,6 +1,6 @@
-import { createContext, useEffect, useMemo, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import supabase from "../supabase/client.js"
-import type { CartItem, Rating } from "../types.d.ts";
+import type { CartItem, Rating, WishList } from "../types.d.ts";
 
 interface CartContextType {
     cart: CartItem[];
@@ -9,11 +9,12 @@ interface CartContextType {
     deleteAllProductsInCart: () => Promise<void | undefined>;
     addToFavorites: (productId: number | string) => Promise<void | undefined>;
     deleteFromFavorites: (productId: number | string) => Promise<void | undefined>;
-    incrementQuantity: (productId: number | string) => Promise<void | undefined>;
     deleteProductFromCart: (productId: number | string) => Promise<void | undefined>;
-    decrementQuantity: (productId: number | string) => Promise<void | undefined>;
-    findItem: (productId: number | string) => { text: string, className: string, isFav: boolean };
     getProductReviews: (productId: number | string) => Promise<Rating[] | undefined>;
+    decrementQuantity: (productId: number | string) => Promise<void | undefined>;
+    wishUserList: WishList[];
+    wishList: (userIdOverride?: string) => Promise<void | undefined>;
+    incrementQuantity: (productId: number | string) => Promise<void | undefined>;
 
 }
 
@@ -26,114 +27,133 @@ interface CartProviderProps {
 export default function CartProvider({ children }: CartProviderProps) {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [loadingProductInCartId, setLoadingProductInCartId] = useState<number | string | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
+    const [cartId, setCartId] = useState<string | number | null>(null);
+    const [wishUserList, setWishUserList] = useState<WishList[]>([]);
 
     useEffect(() => {
-        let channel: any;
-        const setupCartSubscription = async (userId: string) => {
-            const { data: cartData } = await supabase.from("Cart").select().eq("user_id", userId);
+        let cartChannel: any;
+        let wishListChannel: any;
+        function cartChannelSubscribe() {
+            const setupCartSubscription = async (currentUserId: string) => {
+                let currentCartId = null;
+                const { data: cartData } = await supabase.from("Cart").select().eq("user_id", currentUserId);
 
-            if (!cartData || cartData.length === 0) return;
-
-            const cartId = cartData[0].id;
-
-            channel = supabase.channel(`cartItems-changes-${cartId}`)
-                .on(
-                    "postgres_changes",
-                    {
-                        event: "*",
-                        schema: "public",
-                        table: "CartItems",
-                        filter: `cart_id=eq.${cartId}`,
-                    },
-                    () => {
-                        getProductsInCart();
-                    },
-                )
-                .subscribe();
-
-            getProductsInCart();
-        }
-
-
-        //onAuthStateChange => eventos de autenticacion en tiempo real
-        const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (session?.user) {
-                setupCartSubscription(session.user.id);
-            } else {
-                setCart([]);
-                if (channel) {
-                    supabase.removeChannel(channel);
-                    channel = null;
+                if (!cartData || cartData.length === 0) {
+                    const { data: newCart, error } = await supabase.from("Cart").insert({ user_id: currentUserId }).select();
+                    if (!error && newCart) {
+                        currentCartId = newCart[0].id;
+                    }
+                } else {
+                    currentCartId = cartData[0].id;
                 }
+
+                if (!currentCartId) return;
+                setCartId(currentCartId);
+
+                cartChannel = supabase.channel(`cartItems-changes-${currentCartId}`)
+                    .on(
+                        "postgres_changes",
+                        {
+                            event: "*",
+                            schema: "public",
+                            table: "CartItems",
+                            filter: `cart_id=eq.${currentCartId}`,
+                        },
+                        async () => {
+                            console.log("working cart")
+                            await getProductsInCart(currentCartId);
+                        },
+                    )
+                    .subscribe();
+                await getProductsInCart(currentCartId);
             }
-        });
-        // avoid memory leaks
+
+            // onAuthStateChange => eventos de autenticacion en tiempo real
+            supabase.auth.onAuthStateChange((_event, session) => {
+                if (session?.user) {
+                    setUserId(session.user.id);
+                    setupCartSubscription(session.user.id);
+                } else {
+                    setUserId(null);
+                    setCartId(null);
+                    setCart([]);
+                    if (cartChannel) {
+                        supabase.removeChannel(cartChannel);
+                        cartChannel = null;
+                    }
+                }
+            });
+        }
+        cartChannelSubscribe();
+
+        function wishListChannelSubscribe() {
+            let wishListChannel: any;
+            const setupWishListSubscription = async (currentUserId: string) => {
+                const { data: wishListData } = await supabase.from("wishList").select().eq("user_id", currentUserId);
+                if (!wishListData || wishListData.length === 0) return;
+
+                wishListChannel = supabase.channel(`wishListTable-changes-${currentUserId}`)
+                    .on(
+                        "postgres_changes",
+                        {
+                            event: "*",
+                            schema: "public",
+                            table: "wishList",
+                            filter: `user_id=eq.${currentUserId}`,
+                        },
+                        async () => {
+                            console.log("wishList changed");
+                            await wishList(currentUserId);
+                        },
+                    )
+                    .subscribe();
+                await wishList(currentUserId);
+            }
+
+            supabase.auth.onAuthStateChange((_event, session) => {
+                if (session?.user) {
+                    setupWishListSubscription(session.user.id);
+                } else {
+                    setWishUserList([]);
+                    if (wishListChannel) {
+                        supabase.removeChannel(wishListChannel);
+                        wishListChannel = null;
+                    }
+                }
+            });
+        }
+        wishListChannelSubscribe();
+
         return () => {
-            if (channel) supabase.removeChannel(channel);
-            authSubscription.unsubscribe();
-        };
+            if (cartChannel) supabase.removeChannel(cartChannel);
+            if (wishListChannel) supabase.removeChannel(wishListChannel);
+        }
     }, []);
 
-    const getUser = async (): Promise<string> => {
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError) {
-            console.error("Error obteniendo usuario: ", userError.message);
-            throw userError;
-        }
-
-        const userId = userData?.user.id;
-        if (!userId) throw new Error("Usuario no autenticado");
-        return userId;
-    }
-
-    const getOrCreateCart = async (): Promise<string | number> => {
-        const userId = await getUser();
-        const { data: cart, error: cartError } = await supabase
-            .from("Cart")
-            .select()
-            .eq("user_id", userId);
-        if (cartError) {
-            console.error("Error obteniendo carrito:", cartError.message);
-            throw cartError;
-        }
-        if (cart && cart.length > 0) {
-            return cart[0].id;
-        } else {
-            const { data: newCart, error } = await supabase
-                .from("Cart")
-                .insert({ user_id: userId })
-                .select();
-            if (error) {
-                console.error("Error creando carrito:", error.message);
-                throw error;
-            }
-            return newCart[0].id;
-        }
-    };
-
-    const getProductsInCart = async () => {
+    const getProductsInCart = async (targetCartId?: string | number | null) => {
+        const idToUse = targetCartId !== undefined ? targetCartId : cartId;
+        if (!idToUse) return;
         try {
-            const cartId = await getOrCreateCart();
             const { data, error } = await supabase
                 .from("CartItems")
                 .select("*, Products (*)")
-                .eq("cart_id", cartId)
+                .eq("cart_id", idToUse)
                 .order("product_id", { ascending: true });
             if (error) {
-                console.error("Error obteniendo productos del carrito:", error.message);
+                console.error("Error fetching products in cart:", error.message);
                 return;
             }
             setCart(data || []);
         } catch (err: unknown) {
-            console.error("Error general en getProductsInCart:", err instanceof Error ? err.message : String(err));
+            console.error("General error in getProductsInCart:", err instanceof Error ? err.message : String(err));
         }
     };
 
-
     const addProductToCart = async (productId: number | string) => {
+        if (!cartId) return;
         setLoadingProductInCartId(productId);
         try {
-            const cartId = await getOrCreateCart();
             const { data: existingProducts, error: existError } = await supabase
                 .from("CartItems")
                 .select()
@@ -142,96 +162,72 @@ export default function CartProvider({ children }: CartProviderProps) {
                 .maybeSingle();
             if (existError) {
                 console.error(
-                    "Error buscando producto en carrito:",
+                    "Error searching product in cart:",
                     existError.message,
                 );
                 return;
             }
-            if (existingProducts !== null) {
-                const updateQuantity = existingProducts.quantity + 1;
-                const { error: updateError } = await supabase
-                    .from("CartItems")
-                    .update({ quantity: updateQuantity })
-                    .eq("product_id", productId)
-                    .eq("cart_id", cartId)
-                    .select();
-                if (updateError) {
-                    console.error("Error actualizando cantidad:", updateError.message);
-                }
-            } else {
-                const { error: insertError } = await supabase.from("CartItems").insert({
-                    product_id: productId,
-                    cart_id: cartId,
-                    quantity: 1,
-                });
-                if (insertError) {
-                    console.error("Error insertando producto:", insertError.message);
-                }
+            if (existingProducts === null) {
+                await updateQuantity(productId);
             }
-            await getProductsInCart();
         } catch (err: unknown) {
-            console.error("Error general en addProductToCart:", err instanceof Error ? err.message : String(err));
+            console.error("General error in addProductToCart:", err instanceof Error ? err.message : String(err));
         } finally {
             setLoadingProductInCartId(null);
         }
     };
 
+    const incrementQuantity = async (productId: string | number, updateQuantity: number) => {
+        if (!cartId) return;
+        try {
+            const { data, error: updateError } = await supabase.from("CartItems").update({ quantity: updateQuantity }).eq("product_id", productId).eq("cart_id", cartId).select()
+            if (updateError) {
+                console.error("Error updating quantity:", updateError.message);
+            }
+            return data;
+        } catch (err: unknown) {
+            console.error("General error in updateQuantity:", err instanceof Error ? err.message : String(err));
+        }
+    }
+
+    const updateQuantity = async (productId: string | number) => {
+        if (!cartId) return;
+        try {
+            const { data, error: insertError } = await supabase.from("CartItems").insert({
+                product_id: productId,
+                cart_id: cartId,
+                quantity: 1,
+            }).select()
+            if (insertError) {
+                console.error("Error updating quantity:", insertError.message);
+            }
+        } catch (err: unknown) {
+            console.error("General error in updateQuantity:", err instanceof Error ? err.message : String(err));
+        }
+    }
+
 
     const deleteAllProductsInCart = async () => {
+        if (!cartId) return;
         try {
-            const cartId = await getOrCreateCart();
             const { error: deleteError } = await supabase
                 .from("CartItems")
                 .delete()
                 .eq("cart_id", cartId);
             if (deleteError) {
                 console.error(
-                    "Error eliminando productos del carrito:",
+                    "Error deleting products in cart:",
                     deleteError.message,
                 );
             }
         } catch (err: unknown) {
-            console.error("Error general en deleteAllProductsInCart:", err instanceof Error ? err.message : String(err));
-        }
-    };
-
-    const incrementQuantity = async (productId: string | number) => {
-        try {
-            const cartId = await getOrCreateCart();
-            const { data: existingProducts, error: existError } = await supabase
-                .from("CartItems")
-                .select()
-                .eq("cart_id", cartId)
-                .eq("product_id", productId)
-                .maybeSingle();
-            if (existError) {
-                console.error(
-                    "Error buscando producto en carrito:",
-                    existError.message,
-                );
-                return;
-            }
-            if (existingProducts !== null) {
-                const updateQuantity = existingProducts.quantity + 1;
-                const { error: updateError } = await supabase
-                    .from("CartItems")
-                    .update({ quantity: updateQuantity })
-                    .eq("product_id", productId)
-                    .eq("cart_id", cartId)
-                    .select();
-                if (updateError) {
-                    console.error("Error actualizando cantidad:", updateError.message);
-                }
-            }
-            await getProductsInCart();
-        } catch (err: unknown) {
-            console.error("Error general en addProductToCart:", err instanceof Error ? err.message : String(err));
+            console.error("General error in deleteAllProductsInCart:", err instanceof Error ? err.message : String(err));
         }
     }
 
     const decrementQuantity = async (productId: string | number) => {
+        if (!cartId) return;
         try {
-            const cartId = await getOrCreateCart();
             const { data: existingProducts, error: existError } = await supabase
                 .from("CartItems")
                 .select()
@@ -240,102 +236,97 @@ export default function CartProvider({ children }: CartProviderProps) {
                 .maybeSingle();
             if (existError) {
                 console.error(
-                    "Error buscando producto en carrito:",
+                    "Error searching product in cart:",
                     existError.message,
                 );
                 return;
             }
-            if (existingProducts !== null) {
-                if (existingProducts.quantity === 1) {
-                    return;
-                }
+            if (existingProducts !== null && existingProducts.quantity > 1) {
                 const updateQuantity = existingProducts.quantity - 1;
-                const { error: updateError } = await supabase
-                    .from("CartItems")
-                    .update({ quantity: updateQuantity })
-                    .eq("product_id", productId)
-                    .eq("cart_id", cartId)
-                    .select();
-                if (updateError) {
-                    console.error("Error actualizando cantidad:", updateError.message);
+                const { error } = await supabase.from("CartItems").update({ quantity: updateQuantity }).eq("product_id", productId).eq("cart_id", cartId).select()
+                if (error) {
+                    console.error("Error updating quantity:", error.message)
                 }
+            } else {
+                await deleteProductFromCart(productId)
             }
-            await getProductsInCart();
-        } catch (err: unknown) {
-            console.error("Error general en addProductToCart:", err instanceof Error ? err.message : String(err));
-        }
-    }
-
-
-    const deleteFromFavorites = async (productId: string | number) => {
-        const cartId = await getOrCreateCart();
-        try {
-            const { error } = await supabase.from("CartItems").update({ fav: false }).eq("product_id", productId).eq("cart_id", cartId)
-            if (error) {
-                throw error
-            }
-            await getProductsInCart();
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const addToFavorites = async (productId: string | number) => {
-        await getProductsInCart();
-        const cartId = await getOrCreateCart();
-        try {
-            const { error } = await supabase.from("CartItems").update({ fav: true }).eq("product_id", productId).eq("cart_id", cartId)
-            if (error) {
-                throw error
-            }
-            await getProductsInCart();
-        } catch (error) {
-            console.log(error)
+        } catch (error: unknown) {
+            console.error("General error in decrementQuantity:", error instanceof Error ? error.message : String(error));
         }
     }
 
     const deleteProductFromCart = async (productId: string | number) => {
-        const cartId = await getOrCreateCart();
+        if (!cartId) return;
         try {
-            const { error } = await supabase.from("CartItems").delete().eq("product_id", productId).eq("cart_id", cartId)
-            if (error) {
-                throw error
+            const { error: deleteError } = await supabase.from("CartItems").delete().eq("product_id", productId).eq("cart_id", cartId)
+            if (deleteError) {
+                console.error("Error deleting product from cart:", deleteError.message)
             }
-            await getProductsInCart();
-        } catch (error) {
-            console.log(error)
+        } catch (error: unknown) {
+            console.error("General error in deleteProductFromCart:", error instanceof Error ? error.message : String(error))
         }
     }
 
     const getProductReviews = async (productId: string | number) => {
-        const { data, error } = await supabase.from("Rating").select().eq("product_id", productId)
-        if (error) {
-            throw error
+        try {
+            const { data, error } = await supabase.from("Rating").select().eq("product_id", productId)
+            if (error) {
+                console.error("Error fetching product reviews:", error.message)
+            }
+            return data;
+        } catch (error: unknown) {
+            console.error("General error in getProductReviews:", error instanceof Error ? error.message : String(error))
         }
-        console.log(data);
-        return data
     }
 
-    const cartItemsMap = useMemo(() => {
-        const map = new Map();
-        if (cart) {
-            cart.forEach((item) => {
-                map.set(item.product_id, item);
-            })
-            return map;
+    //Favorite section
+
+    const wishList = async (targetUserId?: string | null) => {
+        const idToUse = targetUserId !== undefined ? targetUserId : userId;
+        if (!idToUse) return;
+        try {
+            const { data, error } = await supabase.from("wishList").select().eq("user_id", idToUse)
+            if (error) {
+                console.error("Error fetching wishlist:", error.message)
+            }
+            setWishUserList(data || []);
+            return;
+        } catch (error: unknown) {
+            console.error("General error in getWishList:", error instanceof Error ? error.message : String(error))
         }
-    }, [cart]);
-
-    function findItem(productId: number | string) {
-        const inCart = cartItemsMap?.get(productId);
-        const text = inCart ? "Added to cart" : "Add to cart";
-        const className = inCart ? "flex items-center justify-center text-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-8 px-6 rounded transition-colors duration-300" : "flex items-center text-center justify-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-8 px-6 rounded-full transition-colors duration-300"
-
-        return { text, className, isFav: inCart?.fav };
     }
+
+    const deleteFromFavorites = async (productId: string | number) => {
+        if (!userId) return;
+        setWishUserList((prev) => prev.filter((item) => item.product_id !== productId));
+        try {
+            const { error } = await supabase.from("wishList").delete().eq("user_id", userId).eq("product_id", productId)
+            if (error) {
+                console.error("Error deleting from wishlist:", error.message)
+            }
+        } catch (error: unknown) {
+            console.error("General error in deleteFromFavorites:", error instanceof Error ? error.message : String(error))
+        }
+    }
+
+    const addToFavorites = async (productId: number | string) => {
+        if (!userId) return;
+        setWishUserList((prev) => [...prev, {
+            id: crypto.randomUUID(), user_id: userId, product_id: productId, date: Date.now().toString()
+        }])
+        try {
+            const { error } = await supabase.from("wishList").insert({ user_id: userId, product_id: productId })
+            if (error) {
+                console.error("Error adding to wishlist:", error.message)
+            }
+        } catch (error: unknown) {
+            console.error("General error in addToFavorites:", error instanceof Error ? error.message : String(error))
+        }
+    }
+
 
     return (
-        <CartContext.Provider value={{ cart, addProductToCart, incrementQuantity, deleteProductFromCart, decrementQuantity, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, deleteProductFromCart, getProductReviews, findItem }}>
+        <CartContext.Provider value={{ cart, addProductToCart, deleteProductFromCart, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, wishList, getProductReviews, incrementQuantity, decrementQuantity, wishUserList }}>
             {children}
         </CartContext.Provider>
     )
