@@ -24,15 +24,17 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     useEffect(() => {
         async function checkSession() {
             await supabase.auth.onAuthStateChange((event, session) => {
-                console.log(event)
-                if (event === "INITIAL_SESSION" && isAuthenticated) {
+                if (event === "INITIAL_SESSION" && session) {
                     navigate("/products");
+                    setIsAuthenticated(true);
                 }
-                if (event === "SIGNED_IN" && isAuthenticated) {
+                if (event === "SIGNED_IN" && session) {
                     navigate("/products");
+                    setIsAuthenticated(true);
                 }
                 if (event === "SIGNED_OUT") {
                     navigate("/login");
+                    setIsAuthenticated(false)
                 }
                 if (event === "PASSWORD_RECOVERY") {
                     navigate("/resetPassword");
@@ -43,51 +45,92 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             })
         }
         checkSession();
-    }, [isAuthenticated])
+    }, [])
 
     const login = async (email: string, password: string) => {
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            }
+            );
+            if (error) {
+                console.error("Error login: ", error.message);
+                return error;
+            }
+            return;
+        } catch (error: unknown) {
+            console.error("Error login: ", error instanceof Error ? error.message : error);
+            return error;
         }
-        );
-        if (error) return error;
-        return;
     }
 
 
     const register = async (email: string, password: string, name: string, lastname: string) => {
-        const { error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    fist_name: name,
-                    last_name: lastname
+        try {
+            const { error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        fist_name: name,
+                        last_name: lastname
+                    }
                 }
+            });
+            if (error) {
+                console.error("Error register: ", error.message);
+                return error;
             }
-        });
-        if (error) return error;
-        return;
+            return;
+        } catch (error: unknown) {
+            console.error("Error register: ", error instanceof Error ? error.message : error);
+            return error;
+        }
     }
 
     const logout = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) return error;
-        return;
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error("Error logout: ", error.message);
+                return error;
+            }
+            return;
+        } catch (error: unknown) {
+            console.error("Error logout: ", error instanceof Error ? error.message : error);
+            return error;
+        }
     }
 
     const sendPasswordResetEmail = async (email: string) => {
-        console.log(email)
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + "/resetPassword"
-        });
-        return error;
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + "/resetPassword"
+            });
+            if (error) {
+                console.error("Error sendPasswordResetEmail: ", error.message);
+                return error;
+            }
+            return;
+        } catch (error: unknown) {
+            console.error("Error sendPasswordResetEmail: ", error instanceof Error ? error.message : error);
+            return error;
+        }
     }
 
     const updateUserPassword = async (newPassword: string) => {
-        const { error } = await supabase.auth.updateUser({ password: newPassword });
-        return error;
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) {
+                console.error("Error updateUserPassword: ", error.message);
+                return error;
+            }
+            return;
+        } catch (error: unknown) {
+            console.error("Error updateUserPassword: ", error instanceof Error ? error.message : error);
+            return error;
+        }
     }
 
     return (
