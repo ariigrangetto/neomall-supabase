@@ -257,6 +257,7 @@ export default function CartProvider({ children }: CartProviderProps) {
 
     const deleteProductFromCart = async (productId: string | number) => {
         if (!cartId) return;
+        setCart((prev) => prev.filter((item) => item.product_id !== productId))
         try {
             const { error: deleteError } = await supabase.from("CartItems").delete().eq("product_id", productId).eq("cart_id", cartId)
             if (deleteError) {
@@ -298,6 +299,7 @@ export default function CartProvider({ children }: CartProviderProps) {
 
     const deleteFromFavorites = async (productId: string | number) => {
         if (!userId) return;
+        //optimistic update
         setWishUserList((prev) => prev.filter((item) => item.product_id !== productId));
         try {
             const { error } = await supabase.from("wishList").delete().eq("user_id", userId).eq("product_id", productId)
@@ -311,6 +313,7 @@ export default function CartProvider({ children }: CartProviderProps) {
 
     const addToFavorites = async (productId: number | string) => {
         if (!userId) return;
+        //optimistic update
         setWishUserList((prev) => [...prev, {
             id: crypto.randomUUID(), user_id: userId, product_id: productId, date: Date.now().toString()
         }])
