@@ -2,30 +2,35 @@ import type { Products } from "../types.d.ts";
 import React from "react";
 import { Heart, HeartCrack, MousePointerClick, ShoppingCart } from "lucide-react";
 import { Link } from "react-router";
+import useCartActions from "../hooks/useCartActions.tsx";
 
 interface ProductCartProps {
     key: number | string;
     product: Products;
-    inCartInfo: { text: string; className: string; isFav: boolean };
+    inCartInfo: { className: string, inCart: boolean };
     isLoading: boolean;
     isAuthenticated: boolean;
     addProductToCart: (productId: number | string) => void;
     addToFavorites: (productId: number | string) => void;
     deleteFromFavorites: (productId: number | string) => void;
     handleClickLogin: () => void;
+    deleteProductFromCart: (productId: number | string) => void;
 }
 
 export const ProductCard = React.memo(({
-    key, product, inCartInfo, isLoading, isAuthenticated, addProductToCart, addToFavorites, deleteFromFavorites, handleClickLogin
+    key, product, inCartInfo, isLoading, isAuthenticated, addProductToCart, addToFavorites, deleteFromFavorites, handleClickLogin, deleteProductFromCart
 }: ProductCartProps) => {
+    const { wishUserList } = useCartActions();
+
+    const isFav = wishUserList?.some((item) => item.product_id === product.id) ?? false;
+
     return (
         <li className="flex bg-[rgba(23,23,23,1)] rounded text-white " key={key}>
             <div className="w-100 rounded shadow-md overflow-hidden flex flex-col">
                 <div className="relative flex justify-center p-4 h-64 w-full">
                     <div className="absolute top-4 right-4 z-10">
-                        {/* FIX CON LA NUEVA TABLA DE FAVORITOS */}
                         {isAuthenticated ? (
-                            inCartInfo.isFav ? (
+                            isFav ? (
                                 <button className="cursor-pointer flex justify-center items-center bg-black/20 hover:bg-black/40 text-white font-semibold border-0 outline-0 p-2 rounded-full transition-colors duration-300 backdrop-blur-sm" onClick={() => deleteFromFavorites(product.id)}>
                                     <HeartCrack size={20} color="lightblue" fill="lightblue" />
                                 </button>
@@ -56,12 +61,21 @@ export const ProductCard = React.memo(({
                 <div className="flex justify-center mt-auto py-6">
                     {isAuthenticated ? (
                         <div className="flex justify-center flex-col gap-5 w-[300px]">
-                            <div className="flex items-center justify-center">
-                                <button onClick={() => addProductToCart(product.id)} className={inCartInfo.className}>
-                                    {isLoading ? "Adding to cart..." : inCartInfo.text}
-                                    <ShoppingCart size={20} />
-                                </button>
-                            </div>
+                            {!inCartInfo.inCart ? (
+                                <div className="flex items-center justify-center">
+                                    <button onClick={() => addProductToCart(product.id)} className={inCartInfo.className}>
+                                        {isLoading ? "Adding to cart..." : "Add to cart"}
+                                        <ShoppingCart size={20} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center">
+                                    <button onClick={() => deleteProductFromCart(product.id)} className="flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(204,0,0,0.78)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[rgba(119,0,0,1)] h-10 px-10 rounded transition-colors duration-300">
+                                        {isLoading ? "Removing from cart..." : "Remove from cart"}
+                                        <ShoppingCart size={20} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="flex justify-center flex-col gap-5 w-[300px]">
