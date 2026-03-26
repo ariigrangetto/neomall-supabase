@@ -1,10 +1,9 @@
 /* eslint-disable react/react-in-jsx-scope */
-import SearchSection from "../components/SearchSection.jsx";
-import Pagination from "../components/Pagination.js";
-import ListOfProducts from "../components/ListOfProducts.js";
+import Pagination from "../components/Pagination.tsx";
+import ListOfProducts from "../components/ListOfProducts.tsx";
 import { Link, useNavigate } from "react-router";
-import Footer from "../components/Footer.js";
-import useFilters from "../hooks/useFilters.js";
+import Footer from "../components/Footer.tsx";
+import useFilters from "../hooks/useFilters.tsx";
 import { useRef, useState } from "react";
 import { Search, ShoppingCart, X } from "lucide-react";
 

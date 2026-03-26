@@ -4,14 +4,6 @@ import Footer from "../components/Footer.tsx";
 export default function Home() {
   const navigate = useNavigate();
 
-  const handleClickLogin = () => {
-    navigate("/login")
-  }
-
-  const handleClickRegister = () => {
-    navigate("/register");
-  }
-
   const handleClickProducts = () => {
     navigate("/products");
   }
