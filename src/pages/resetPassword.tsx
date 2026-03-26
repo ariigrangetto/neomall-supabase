@@ -1,6 +1,5 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { IconButton, InputAdornment, TextField } from "@mui/material";
-import { Link, useNavigate } from "react-router";
+import { TextField } from "@mui/material";
+import { useNavigate } from "react-router";
 import Footer from "../components/Footer.tsx";
 import { useRef, useState } from "react";
 import { useUserActions } from "../hooks/useUserActions.tsx";
