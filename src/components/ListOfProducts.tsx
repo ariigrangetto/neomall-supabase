@@ -10,13 +10,7 @@ import { useUserActions } from "../hooks/useUserActions.tsx";
 export default function ListOfProducts() {
   const { products, loading, error } = useUrl();
   const { isAuthenticated } = useUserActions();
-  const { addProductToCart, loadingProductInCartId, cart, addToFavorites, deleteFromFavorites, deleteProductFromCart } = useCartActions();
-  const navigate = useNavigate();
-
-  const handleClickLogin = () => {
-    navigate("/login")
-  }
-
+  const { loadingProductInCartId, cart } = useCartActions();
   const cartItemsMap = useMemo(() => {
     const map = new Map();
     if (cart) {
@@ -67,16 +61,10 @@ export default function ListOfProducts() {
               {products!.map((product) => {
                 return (
                   <ProductCard
-                    key={product.id}
                     product={product}
                     inCartInfo={findItem(product.id)}
                     isLoading={loadingProductInCartId === product.id}
                     isAuthenticated={isAuthenticated}
-                    addProductToCart={addProductToCart}
-                    addToFavorites={addToFavorites}
-                    deleteFromFavorites={deleteFromFavorites}
-                    handleClickLogin={handleClickLogin}
-                    deleteProductFromCart={deleteProductFromCart}
                   />
                 )
               })}
