@@ -1,6 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { useNavigate } from "react-router";
-import useAuth from "../hooks/useAuth.tsx";
 import useUrl from "../hooks/useUrl.tsx";
 import useCartActions from "../hooks/useCartActions.tsx";
 import { useMemo } from "react";
@@ -11,7 +10,7 @@ import { useUserActions } from "../hooks/useUserActions.tsx";
 export default function ListOfProducts() {
   const { products, loading, error } = useUrl();
   const { isAuthenticated } = useUserActions();
-  const { addProductToCart, loadingProductInCartId, cart, addToFavorites, deleteFromFavorites } = useCartActions();
+  const { addProductToCart, loadingProductInCartId, cart, addToFavorites, deleteFromFavorites, deleteProductFromCart } = useCartActions();
   const navigate = useNavigate();
 
   const handleClickLogin = () => {
@@ -29,12 +28,11 @@ export default function ListOfProducts() {
   }, [cart]);
 
   function findItem(productId: number | string) {
-    const inCart = cartItemsMap?.get(productId);
-    const text = inCart ? "Added to cart" : "Add to cart";
+    const inCart = cartItemsMap?.get(productId) ?? false;
     const className = inCart ? "flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-10 px-10 rounded transition-colors duration-300"
       : "flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-10 px-10 rounded transition-colors duration-300"
 
-    return { text, className, isFav: inCart?.fav };
+    return { className, inCart };
   }
 
   return (
@@ -78,6 +76,7 @@ export default function ListOfProducts() {
                     addToFavorites={addToFavorites}
                     deleteFromFavorites={deleteFromFavorites}
                     handleClickLogin={handleClickLogin}
+                    deleteProductFromCart={deleteProductFromCart}
                   />
                 )
               })}
