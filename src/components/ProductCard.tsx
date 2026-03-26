@@ -1,31 +1,30 @@
 import type { Products } from "../types.d.ts";
 import React from "react";
 import { Heart, HeartCrack, MousePointerClick, ShoppingCart } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useCartActions from "../hooks/useCartActions.tsx";
 
 interface ProductCartProps {
-    key: number | string;
     product: Products;
     inCartInfo: { className: string, inCart: boolean };
     isLoading: boolean;
     isAuthenticated: boolean;
-    addProductToCart: (productId: number | string) => void;
-    addToFavorites: (productId: number | string) => void;
-    deleteFromFavorites: (productId: number | string) => void;
-    handleClickLogin: () => void;
-    deleteProductFromCart: (productId: number | string) => void;
 }
 
 export const ProductCard = React.memo(({
-    key, product, inCartInfo, isLoading, isAuthenticated, addProductToCart, addToFavorites, deleteFromFavorites, handleClickLogin, deleteProductFromCart
+    product, inCartInfo, isLoading, isAuthenticated
 }: ProductCartProps) => {
-    const { wishUserList } = useCartActions();
+    const { wishUserList, addProductToCart, addToFavorites, deleteFromFavorites, deleteProductFromCart } = useCartActions();
+    const navigate = useNavigate();
+
+    const handleClickLogin = () => {
+        navigate("/login");
+    }
 
     const isFav = wishUserList?.some((item) => item.product_id === product.id) ?? false;
 
     return (
-        <li className="flex bg-[rgba(23,23,23,1)] rounded text-white " key={key}>
+        <li className="flex bg-[rgba(23,23,23,1)] rounded text-white " key={product.id}>
             <div className="w-100 rounded shadow-md overflow-hidden flex flex-col">
                 <div className="relative flex justify-center p-4 h-64 w-full">
                     <div className="absolute top-4 right-4 z-10">
