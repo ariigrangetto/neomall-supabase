@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import useFilters from "../hooks/useFilters.js";
-import useUrl from "../hooks/useUrl.js";
+import useFilters from "../hooks/useFilters.tsx";
+import useUrl from "../hooks/useUrl.tsx";
 
 export default function Pagination() {
   const { totalPages, handleChangePage } = useUrl();

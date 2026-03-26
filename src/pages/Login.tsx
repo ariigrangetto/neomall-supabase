@@ -2,8 +2,8 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import supabase from "../supabase/client.js";
-import { useUserActions } from "../hooks/useUserActions.js";
-import Footer from "../components/Footer.js";
+import { useUserActions } from "../hooks/useUserActions.tsx";
+import Footer from "../components/Footer.tsx";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';

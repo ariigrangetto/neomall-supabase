@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import useFilters from "./useFilters";
+import useFilters from "./useFilters.tsx";
 import supabase from "../supabase/client.js";
-import type { Products } from "../types.d";
+import type { Products } from "../types.d.ts";
 import useLoadingAndError from "./useLoadingAndError.tsx";
 
 const RESULTS_PER_PAGE = 10;

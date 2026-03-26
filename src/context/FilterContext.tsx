@@ -1,5 +1,5 @@
 import React, { createContext, useState, type SetStateAction } from "react";
-import type { FiltersType } from "../types.d";
+import type { FiltersType } from "../types.d.ts";
 import { useSearchParams, type SetURLSearchParams } from "react-router";
 
 interface FilterContextType {
