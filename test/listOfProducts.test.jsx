@@ -9,6 +9,7 @@ import useAuth from "../src/hooks/useAuth.tsx";
 import useUrl from "../src/hooks/useUrl.tsx";
 import useCartActions from "../src/hooks/useCartActions.tsx";
 import useLoadingAndError from "../src/hooks/useLoadingAndError.tsx";
+import UserProvider from "../src/context/UserActions.tsx";
 
 //mock hooks
 vi.mock("../src/hooks/useAuth.tsx", () => ({
@@ -63,10 +64,12 @@ test(`navigate to login when "add to cart" button is clicked and user is not aut
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
-                    <Routes>
-                        <Route path="/products" element={<ListOfProducts />} />
-                        <Route path="/login" element={<MockLogin />} />
-                    </Routes>
+                    <UserProvider>
+                        <Routes>
+                            <Route path="/products" element={<ListOfProducts />} />
+                            <Route path="/login" element={<MockLogin />} />
+                        </Routes>
+                    </UserProvider>
                 </CartProvider>
             </LoadingProvider>
         </FilterProvider>

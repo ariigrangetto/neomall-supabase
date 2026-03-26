@@ -4,13 +4,16 @@ import { MemoryRouter } from "react-router";
 import FilterProvider from "../src/context/FilterContext.tsx";
 import LoadingProvider from "../src/context/LoadingErrorContext.tsx";
 import CartProvider from "../src/context/CartContext.tsx";
+import UserProvider from "../src/context/UserActions.tsx";
 
 test(`Find "category" select`, () => {
     render(<MemoryRouter>
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
-                    <Products />
+                    <UserProvider>
+                        <Products />
+                    </UserProvider>
                 </CartProvider>
             </LoadingProvider>
         </FilterProvider>
@@ -24,7 +27,9 @@ test(`Find "search" input`, () => {
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
-                    <Products />
+                    <UserProvider>
+                        <Products />
+                    </UserProvider>
                 </CartProvider>
             </LoadingProvider>
         </FilterProvider>
@@ -38,7 +43,9 @@ test(`Find cart link`, () => {
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
-                    <Products />
+                    <UserProvider>
+                        <Products />
+                    </UserProvider>
                 </CartProvider>
             </LoadingProvider>
         </FilterProvider>
@@ -52,7 +59,9 @@ test(`Find user profile link`, () => {
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
-                    <Products />
+                    <UserProvider>
+                        <Products />
+                    </UserProvider>
                 </CartProvider>
             </LoadingProvider>
         </FilterProvider>
