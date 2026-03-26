@@ -1,9 +1,8 @@
 import { useRef, useState } from "react";
-import { Link, useNavigate } from "react-router";
-import supabase from "../supabase/client.js";
+import { Link } from "react-router";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import Footer from "../components/Footer.js";
+import Footer from "../components/Footer.tsx";
 import { useUserActions } from "../hooks/useUserActions.tsx";
 
 interface State {
@@ -17,8 +16,7 @@ export default function Register() {
   const [state, setState] = useState<State>({ email: "", password: "", name: "", lastname: "" });
   const [errorMessage, setErrorMessage] = useState<string>("");
   let timeoutId = useRef<number | null>(null);
-  const navigate = useNavigate();
-  const { register, setIsAuthenticated } = useUserActions();
+  const { register } = useUserActions();
   const [loading, setLoading] = useState<boolean>(false);
   const [authenticateMessage, setAuthenticateMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
