@@ -177,14 +177,27 @@ export default function CartProvider({ children }: CartProviderProps) {
         }
     };
 
-    const incrementQuantity = async (productId: string | number, updateQuantity: number) => {
+    const incrementQuantity = async (productId: string | number) => {
         if (!cartId) return;
         try {
-            const { data, error: updateError } = await supabase.from("CartItems").update({ quantity: updateQuantity }).eq("product_id", productId).eq("cart_id", cartId).select()
-            if (updateError) {
-                console.error("Error updating quantity:", updateError.message);
+            const { data: productInCart, error: productNotFoundError } = await supabase.from("CartItems")
+                .select()
+                .eq("product_id", productId)
+                .eq("cart_id", cartId)
+            if (productNotFoundError) {
+                console.error("Error searching product in cart:", productNotFoundError.message);
             }
-            return data;
+            if (productInCart) {
+                const updateQuantity = productInCart[0].quantity + 1;
+                try {
+                    const { error: updateError } = await supabase.from("CartItems").update({ quantity: updateQuantity }).eq("product_id", productId).eq("cart_id", cartId)
+                    if (updateError) {
+                        console.error("Error updating quantity:", updateError.message);
+                    }
+                } catch (error) {
+                    console.error("General error in updateQuantity:", error instanceof Error ? error.message : String(error));
+                }
+            }
         } catch (err: unknown) {
             console.error("General error in updateQuantity:", err instanceof Error ? err.message : String(err));
         }
@@ -220,6 +233,8 @@ export default function CartProvider({ children }: CartProviderProps) {
                     deleteError.message,
                 );
             }
+            //optimistic update
+            setCart([]);
         } catch (err: unknown) {
             console.error("General error in deleteAllProductsInCart:", err instanceof Error ? err.message : String(err));
         }
@@ -233,7 +248,6 @@ export default function CartProvider({ children }: CartProviderProps) {
                 .select()
                 .eq("cart_id", cartId)
                 .eq("product_id", productId)
-                .maybeSingle();
             if (existError) {
                 console.error(
                     "Error searching product in cart:",
@@ -241,13 +255,18 @@ export default function CartProvider({ children }: CartProviderProps) {
                 );
                 return;
             }
-            if (existingProducts !== null && existingProducts.quantity > 1) {
-                const updateQuantity = existingProducts.quantity - 1;
-                const { error } = await supabase.from("CartItems").update({ quantity: updateQuantity }).eq("product_id", productId).eq("cart_id", cartId).select()
-                if (error) {
-                    console.error("Error updating quantity:", error.message)
+            if (existingProducts !== null && existingProducts[0].quantity > 1) {
+                try {
+                    const updateQuantity = existingProducts[0].quantity - 1;
+                    const { error } = await supabase.from("CartItems").update({ quantity: updateQuantity }).eq("product_id", productId).eq("cart_id", cartId).select()
+                    if (error) {
+                        console.error("Error updating quantity:", error.message)
+                    }
+                } catch (error) {
+                    console.error("General error in decrementQuantity:", error instanceof Error ? error.message : String(error));
                 }
-            } else {
+            }
+            else {
                 await deleteProductFromCart(productId)
             }
         } catch (error: unknown) {
