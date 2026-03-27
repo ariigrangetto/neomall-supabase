@@ -5,16 +5,13 @@ import LoadingProvider from "../src/context/LoadingErrorContext.tsx";
 import CartProvider from "../src/context/CartContext.tsx";
 import ListOfProducts from "../src/components/ListOfProducts.tsx";
 import { vi } from "vitest";
-import useAuth from "../src/hooks/useAuth.tsx";
 import useUrl from "../src/hooks/useUrl.tsx";
 import useCartActions from "../src/hooks/useCartActions.tsx";
 import useLoadingAndError from "../src/hooks/useLoadingAndError.tsx";
+import useUserActions from "../src/hooks/useUserActions.tsx";
 import UserProvider from "../src/context/UserActions.tsx";
 
 //mock hooks
-vi.mock("../src/hooks/useAuth.tsx", () => ({
-    default: vi.fn()
-}));
 
 vi.mock("../src/hooks/useUrl.tsx", () => ({
     default: vi.fn()
@@ -25,6 +22,10 @@ vi.mock("../src/hooks/useCartActions.tsx", () => ({
 }))
 
 vi.mock("../src/hooks/useLoadingAndError.tsx", () => ({
+    default: vi.fn()
+}))
+
+vi.mock("../src/hooks/useUserActions.tsx", () => ({
     default: vi.fn()
 }))
 
@@ -39,10 +40,10 @@ const mockProduct = {
 }
 
 test(`Find "explore our products" in ListOfProducts component`, () => {
-    useAuth.mockReturnValue({ isAuthenticated: true });
     useUrl.mockReturnValue({ products: [mockProduct] });
     useLoadingAndError.mockReturnValue({ error: false, loading: false });
     useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), loadingProductInCart: null, cart: [] });
+    useUserActions.mockReturnValue({ isAuthenticated: true });
 
     render(<MemoryRouter initialEntries={["/products"]}>
         <ListOfProducts />
@@ -52,31 +53,46 @@ test(`Find "explore our products" in ListOfProducts component`, () => {
     expect(heading).toBeInTheDocument();
 });
 
-const MockLogin = () => <div>Login page loaded</div>
-
-test(`navigate to login when "add to cart" button is clicked and user is not authenticated`, async () => {
-    useAuth.mockReturnValue({ isAuthenticated: false });
-    useUrl.mockReturnValue({ products: [mockProduct] });
+test("Get error text when there is an error", () => {
+    useUrl.mockReturnValue({ error: true, products: [mockProduct] });
     useLoadingAndError.mockReturnValue({ error: false, loading: false });
     useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), loadingProductInCart: null, cart: [] });
+    useUserActions.mockReturnValue({ isAuthenticated: true });
 
     render(<MemoryRouter initialEntries={["/products"]}>
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
                     <UserProvider>
-                        <Routes>
-                            <Route path="/products" element={<ListOfProducts />} />
-                            <Route path="/login" element={<MockLogin />} />
-                        </Routes>
+                        <ListOfProducts />
                     </UserProvider>
                 </CartProvider>
             </LoadingProvider>
         </FilterProvider>
     </MemoryRouter>);
-    const addToCartBtn = screen.getAllByRole("button", { name: /add to cart/i });
-    fireEvent.click(addToCartBtn[0]);
-    await waitFor(() => {
-        expect(screen.getByText("Login page loaded")).toBeInTheDocument();
-    });
+
+    const errorText = screen.getByRole("heading", { name: /Oops! Something went wrong/i });
+    expect(errorText).toBeInTheDocument();
+});
+
+test("Get loading text when loading is true and products is undefined", () => {
+    useUrl.mockReturnValue({ error: false, loading: true, products: undefined });
+    useLoadingAndError.mockReturnValue({ error: false, loading: false });
+    useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), loadingProductInCart: null, cart: [] });
+    useUserActions.mockReturnValue({ isAuthenticated: true });
+
+    render(<MemoryRouter initialEntries={["/products"]}>
+        <FilterProvider>
+            <LoadingProvider>
+                <CartProvider>
+                    <UserProvider>
+                        <ListOfProducts />
+                    </UserProvider>
+                </CartProvider>
+            </LoadingProvider>
+        </FilterProvider>
+    </MemoryRouter>);
+
+    const loadingText = screen.getByRole("heading", { name: /Loading products.../i });
+    expect(loadingText).toBeInTheDocument();
 });
