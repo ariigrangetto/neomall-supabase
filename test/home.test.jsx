@@ -6,7 +6,7 @@ import FilterProvider from '../src/context/FilterContext.tsx';
 import LoadingProvider from '../src/context/LoadingErrorContext.tsx';
 import CartProvider from '../src/context/CartContext.tsx';
 import UserProvider from '../src/context/UserActions.tsx';
-import { Login } from '@mui/icons-material';
+import Login from '../src/pages/Login.tsx';
 
 test(`Finde "explore products" button`, () => {
     render(<MemoryRouter><Home /></MemoryRouter>);
@@ -39,7 +39,6 @@ test(`Redirect to /products when "expolore products" button is clicked`, async (
     });
 });
 
-//Revisar!!!
 
 test(`Find "login" link`, async () => {
     render(<MemoryRouter initialEntries={["/"]}>
@@ -52,6 +51,7 @@ test(`Find "login" link`, async () => {
                             <Route path='/login' element={<Login />} />
                         </Routes>
                     </UserProvider>
+
                 </CartProvider>
             </LoadingProvider>
         </FilterProvider>
@@ -59,6 +59,6 @@ test(`Find "login" link`, async () => {
     const loginBtn = screen.getByRole("link", { name: /login/i });
     fireEvent.click(loginBtn);
     await waitFor(() => {
-        expect(screen.getByText("Login")).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: /login/i })).toBeInTheDocument();
     });
 });
