@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react"
-import { MemoryRouter } from "react-router";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { MemoryRouter, Route, Routes } from "react-router";
 import FilterProvider from "../src/context/FilterContext.tsx";
 import LoadingProvider from "../src/context/LoadingErrorContext.tsx";
 import CartProvider from "../src/context/CartContext.tsx";
@@ -51,6 +51,32 @@ test(`Find "add to cart" button in product card`, () => {
     fireEvent.click(addToCartBtn);
 })
 
+test(`Find "see details" button and redirect to product details page`, async () => {
+    useCartActions.mockReturnValue({ wishUserList: [], addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), deleteProductFromCart: vi.fn(), deleteFromFavorites: vi.fn() })
+
+    render(<MemoryRouter initialEntries={["/products"]}>
+        <FilterProvider>
+            <LoadingProvider>
+                <CartProvider>
+                    <UserProvider>
+                        <Routes>
+                            <Route path="/products" element={<ProductCard product={mockProduct} isAuthenticated={true} isLoading={false} inCartInfo={{ inCart: false, className: "" }} />} />
+                            <Route path={`/productDetail/:id`} element={<div>Product Details</div>} />
+                        </Routes>
+                    </UserProvider>
+                </CartProvider>
+            </LoadingProvider>
+        </FilterProvider>
+    </MemoryRouter>)
+
+    const seeDetailsBtn = screen.getByRole("link", { name: "See details" });
+    expect(seeDetailsBtn).toBeInTheDocument();
+    fireEvent.click(seeDetailsBtn);
+    await waitFor(() => {
+        expect(screen.getByText("Product Details")).toBeInTheDocument();
+    })
+})
+
 test("Call delete from cart when user is authenticated and product is in cart", () => {
     const mockDeleteProductFromCart = vi.fn();
     useCartActions.mockReturnValue({ wishUserList: [], addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), deleteProductFromCart: mockDeleteProductFromCart, deleteFromFavorites: vi.fn() });
@@ -70,7 +96,6 @@ test("Call delete from cart when user is authenticated and product is in cart", 
     fireEvent.click(removeBtn);
     expect(mockDeleteProductFromCart).toHaveBeenCalledWith(mockProduct.id);
 })
-
 
 test(`Call "handleClickLogin" when "add to cart" button is clicked and user is not authenticated`, async () => {
     useCartActions.mockReturnValue({ wishUserList: [], addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), deleteProductFromCart: vi.fn(), deleteFromFavorites: vi.fn() });
