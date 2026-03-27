@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Footer from "../components/Footer.tsx";
-import { useUserActions } from "../hooks/useUserActions.tsx";
+import useUserActions from "../hooks/useUserActions.tsx";
 
 interface State {
   email: string;

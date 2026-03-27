@@ -2,7 +2,7 @@ import { TextField } from "@mui/material";
 import { useNavigate } from "react-router";
 import Footer from "../components/Footer.tsx";
 import { useRef, useState } from "react";
-import { useUserActions } from "../hooks/useUserActions.tsx";
+import useUserActions from "../hooks/useUserActions.tsx";
 
 
 export default function ResetPassword() {

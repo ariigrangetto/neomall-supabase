@@ -1,11 +1,10 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { useNavigate } from "react-router";
 import useUrl from "../hooks/useUrl.tsx";
 import useCartActions from "../hooks/useCartActions.tsx";
 import { useMemo } from "react";
 import { PackageX, AlertCircle, Loader2 } from "lucide-react";
 import { ProductCard } from "./ProductCard.tsx";
-import { useUserActions } from "../hooks/useUserActions.tsx";
+import useUserActions from "../hooks/useUserActions.tsx";
 
 export default function ListOfProducts() {
   const { products, loading, error } = useUrl();
@@ -70,8 +69,6 @@ export default function ListOfProducts() {
               })}
             </ul >
           </>
-
-
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-8 text-center">
             <div className="p-4 bg-gray-800 rounded-full">

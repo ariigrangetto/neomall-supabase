@@ -1,4 +1,4 @@
-import { useUserActions } from "../hooks/useUserActions.tsx";
+import useUserActions from "../hooks/useUserActions.tsx";
 
 interface Props {
   children: React.ReactNode;

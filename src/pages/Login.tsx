@@ -1,8 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import supabase from "../supabase/client.js";
-import { useUserActions } from "../hooks/useUserActions.tsx";
+import useUserActions from "../hooks/useUserActions.tsx";
 import Footer from "../components/Footer.tsx";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import Visibility from '@mui/icons-material/Visibility';
