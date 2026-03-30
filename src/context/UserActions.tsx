@@ -12,6 +12,7 @@ interface UserContextProps {
     updateUserPassword: (newPassword: string) => Promise<Error | null>;
     isAuthenticated: boolean;
     setIsAuthenticated: Dispatch<React.SetStateAction<boolean>>
+    loginWithGoogle: () => Promise<Error | undefined>
 
 }
 
@@ -22,8 +23,9 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     const navigate = useNavigate();
 
     useEffect(() => {
+        let data: any;
         async function checkSession() {
-            await supabase.auth.onAuthStateChange((event, session) => {
+            data = await supabase.auth.onAuthStateChange((event, session) => {
                 if (event === "INITIAL_SESSION" && session) {
                     navigate("/products");
                     setIsAuthenticated(true);
@@ -45,6 +47,10 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             })
         }
         checkSession();
+
+        return (() => {
+            data.subscription.unsubscribe();
+        })
     }, [])
 
     const login = async (email: string, password: string) => {
@@ -133,8 +139,25 @@ export default function UserProvider({ children }: { children: React.ReactNode }
         }
     }
 
+
+    const loginWithGoogle = async () => {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+            });
+            if (error) {
+                console.error("Error loginWithGoogle: ", error.message);
+                return error;
+            }
+            return;
+        } catch (error: unknown) {
+            console.error("Error loginWithGoogle: ", error instanceof Error ? error.message : error);
+            return error;
+        }
+    }
+
     return (
-        <UserContext.Provider value={{ login, register, logout, sendPasswordResetEmail, updateUserPassword, isAuthenticated, setIsAuthenticated }}>
+        <UserContext.Provider value={{ login, register, logout, loginWithGoogle, sendPasswordResetEmail, updateUserPassword, isAuthenticated, setIsAuthenticated }}>
             {children}
         </UserContext.Provider>
     )
