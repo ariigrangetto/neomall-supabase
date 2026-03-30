@@ -3,9 +3,7 @@ import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import useUserActions from "../hooks/useUserActions.tsx";
 import Footer from "../components/Footer.tsx";
-import { IconButton, InputAdornment, TextField } from "@mui/material";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { Eye, EyeClosed } from "lucide-react";
 
 
 interface State {
@@ -17,9 +15,8 @@ interface State {
 export default function Login() {
   const [state, setState] = useState<State>({ email: "", password: "" });
   const [loading, setLoading] = useState<boolean>(false);
-  const { setIsAuthenticated } = useUserActions();
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const { login } = useUserActions();
+  const { login, setIsAuthenticated, loginWithGoogle } = useUserActions();
   const timeout = useRef<number | null>(null);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -68,7 +65,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col">
       <title>Login</title>
-      <main className="flex-grow flex items-center justify-center">
+      <main className="grow flex items-center justify-center">
         <div className="border border-gray-200/10 w-130 p-5 py-20 rounded-lg">
           <div className="flex items-center justify-center gap-2">
             <button onClick={() => navigate("/")}>
@@ -76,69 +73,31 @@ export default function Login() {
             </button>
             <h1 className="text-3xl font-semibold  text-center">Login</h1>
           </div>
-          <form className="flex flex-col mt-2 gap-5 p-10" onSubmit={handleSubmitForm}>
-            <TextField
-              type='email'
-              label="Email"
-              required
-              name='email'
-              placeholder="your@email.com"
-              onChange={onChange}
-              sx={{
-                "& .MuiInputBase-root": { color: "lightgray", borderRadius: "50px" },
-                "& .MuiInputLabel-root": { color: "lightgray" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "gray" },
-                  "&:hover fieldset": { borderColor: "white", transition: "all 0.3s ease" },
-                  "&.Mui-focused fieldset": { borderColor: "white", transition: "all 0.3s ease" },
-                },
-                "& input:-webkit-autofill": {
-                  transition: "background-color 5000s ease-in-out 0s",
-                  WebkitTextFillColor: "lightgray",
-                },
-              }}
-            />
-            <TextField
-              type={showPassword ? "text" : "password"}
-              label="Password"
-              required
-              name='password'
-              placeholder="*******"
-              onChange={onChange}
-              sx={{
-                "& .MuiInputBase-root": { color: "lightgray", borderRadius: "50px" },
-                "& .MuiInputLabel-root": { color: "lightgray" },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "gray" },
-                  "&:hover fieldset": { borderColor: "white", transition: "all 0.3s ease" },
-                  "&.Mui-focused fieldset": { borderColor: "white", transition: "all 0.3s ease" },
-                },
-                "& input:-webkit-autofill": {
-                  transition: "background-color 5000s ease-in-out 0s",
-                  WebkitTextFillColor: "lightgray",
-                },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      sx={{ color: "lightgray" }}
-                    >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <button className="border py-2 mt-6 rounded-full bg-[rgba(7,75,248,1)] border-gray-500/20 px-5 w-40 justify-center m-auto cursor-pointer hover:bg-blue-700/90 hover:text-white hover:duration-700 transition-colors">{loading ? "Logging in..." : "Login"}</button>
+          <form className="flex flex-col justify-center m-auto items-center gap-4 p-10" onSubmit={handleSubmitForm}>
+            <button className="justify-center flex m-auto items-center gap-3 bg-black border border-gray-300/30 rounded-full px-15 py-2 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer" onClick={loginWithGoogle}>
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              <span className="text-white font-medium">
+                Login with Google
+              </span></button>
+            <input type="text" placeholder="Your@email.com" className="border bg-black border-gray-300/30 rounded-full w-73 px-3 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 outline-none" value={state.email} onChange={onChange} name="email" required />
+            <div className="relative w-73">
+              <input type={showPassword ? "text" : "password"} placeholder="*******" className="border bg-black border-gray-300/30 rounded-full w-73 px-3 py-2.5 shadow-sm hover:shadow-md outline-none transition-all duration-200 " value={state.password} onChange={onChange} name="password" required />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2">
+                {showPassword ? <Eye size={20} /> : <EyeClosed size={20} />}
+              </button>
+            </div>
+            <button className="border py-2 mt-2 rounded-full bg-[rgba(7,75,248,1)] border-gray-500/20 px-5 w-40 justify-center m-auto cursor-pointer hover:bg-blue-700/90 hover:text-white hover:duration-700 transition-colors">{loading ? "Logging in..." : "Login"}</button>
           </form>
           {errorMessage && <p className="text-red-500 text-center">{errorMessage}</p>}
           <div className="justify-center text-center mt-1">
             <p>Don't have an account? </p>
             <Link to='/register' className="cursor-pointer text-blue-700"> Sign up!</Link>
           </div>
+
         </div>
       </main >
       <Footer />
