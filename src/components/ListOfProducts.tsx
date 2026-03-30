@@ -1,7 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 import useUrl from "../hooks/useUrl.tsx";
 import useCartActions from "../hooks/useCartActions.tsx";
-import { useMemo } from "react";
 import { PackageX, AlertCircle, Loader2 } from "lucide-react";
 import { ProductCard } from "./ProductCard.tsx";
 import useUserActions from "../hooks/useUserActions.tsx";
@@ -9,16 +8,7 @@ import useUserActions from "../hooks/useUserActions.tsx";
 export default function ListOfProducts() {
   const { products, loading, error } = useUrl();
   const { isAuthenticated } = useUserActions();
-  const { loadingProductInCartId, cart } = useCartActions();
-  const cartItemsMap = useMemo(() => {
-    const map = new Map();
-    if (cart) {
-      cart.forEach((item) => {
-        map.set(item.product_id, item);
-      })
-      return map;
-    }
-  }, [cart]);
+  const { loadingProductInCartId, cartItemsMap } = useCartActions();
 
   function findItem(productId: number | string) {
     const inCart = cartItemsMap?.get(productId) ?? false;
@@ -60,6 +50,7 @@ export default function ListOfProducts() {
               {products!.map((product) => {
                 return (
                   <ProductCard
+                    key={product.id}
                     product={product}
                     inCartInfo={findItem(product.id)}
                     isLoading={loadingProductInCartId === product.id}

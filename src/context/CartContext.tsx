@@ -1,6 +1,8 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { createContext, useEffect, useState } from "react";
 import supabase from "../supabase/client.js"
 import type { CartItem, Rating, WishList } from "../types.d.ts";
+import { useMemo } from "react";
 
 interface CartContextType {
     cart: CartItem[];
@@ -13,9 +15,10 @@ interface CartContextType {
     getProductReviews: (productId: number | string) => Promise<Rating[] | undefined>;
     decrementQuantity: (productId: number | string) => Promise<void | undefined>;
     wishUserList: WishList[];
-    wishList: (userIdOverride?: string) => Promise<void | undefined>;
+    wishList: (targetUserId: string | null) => Promise<void | undefined>;
     incrementQuantity: (productId: number | string) => Promise<void | undefined>;
-
+    cartItemsMap: Map<number | string | undefined, CartItem>;
+    wishListMap: Map<number | string | undefined, WishList>;
 }
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -206,7 +209,7 @@ export default function CartProvider({ children }: CartProviderProps) {
     const updateQuantity = async (productId: string | number) => {
         if (!cartId) return;
         try {
-            const { data, error: insertError } = await supabase.from("CartItems").insert({
+            const { error: insertError } = await supabase.from("CartItems").insert({
                 product_id: productId,
                 cart_id: cartId,
                 quantity: 1,
@@ -346,9 +349,29 @@ export default function CartProvider({ children }: CartProviderProps) {
         }
     }
 
+    const cartItemsMap = useMemo(() => {
+        const map = new Map();
+        if (cart) {
+            cart.forEach((item) => {
+                map.set(item.product_id, item);
+            })
+            return map;
+        }
+    }, [cart]);
+
+    const wishListMap = useMemo(() => {
+        const map = new Map();
+        if (wishUserList) {
+            wishUserList.forEach(item => {
+                map.set(item.product_id, item);
+            });
+            return map;
+        }
+    }, [wishUserList])
+
 
     return (
-        <CartContext.Provider value={{ cart, addProductToCart, deleteProductFromCart, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, wishList, getProductReviews, incrementQuantity, decrementQuantity, wishUserList }}>
+        <CartContext.Provider value={{ cart, addProductToCart, deleteProductFromCart, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, wishList, getProductReviews, incrementQuantity, decrementQuantity, wishUserList, cartItemsMap, wishListMap }}>
             {children}
         </CartContext.Provider>
     )
