@@ -1,9 +1,10 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { useEffect, useState } from "react";
-import { Heart, HeartCrack, MousePointerClick, ShoppingCart, Star, StarIcon } from "lucide-react";
-import { useUserActions } from "../hooks/useUserActions";
-import type { Products, Rating } from "../types.d";
+import { Heart, HeartCrack, MousePointerClick, ShoppingCart, StarIcon } from "lucide-react";
+import useUserActions from "../hooks/useUserActions.tsx";
+import type { Products, Rating } from "../types.d.ts";
 import { useNavigate } from "react-router";
-import useCartActions from "../hooks/useCartActions";
+import useCartActions from "../hooks/useCartActions.tsx";
 
 
 interface ItemDetailsProps {
@@ -13,9 +14,8 @@ interface ItemDetailsProps {
 
 export default function ItemDetails({ item, isLoading }: ItemDetailsProps) {
     const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
-    const { addProductToCart, addToFavorites, deleteFromFavorites, getProductReviews, findItem } = useCartActions();
+    const { addProductToCart, addToFavorites, deleteFromFavorites, deleteProductFromCart, getProductReviews, cartItemsMap, wishListMap } = useCartActions();
     const { isAuthenticated } = useUserActions();
-    const inCartInfo = findItem(item.id);
     const navigate = useNavigate();
     const [reviews, setReviews] = useState<Rating[]>([]);
 
@@ -29,12 +29,13 @@ export default function ItemDetails({ item, isLoading }: ItemDetailsProps) {
         getRating()
     }, [item.id])
 
+    const inCartInfo = cartItemsMap?.get(item.id) ?? false;
+    const isFav = wishListMap?.has(item.id);
+
     const handleClickLogin = () => {
         navigate("/login")
     }
 
-    console.log(item)
-    console.log(reviews)
     return (
         <>
             <div className="w-full rounded shadow-md overflow-hidden flex flex-col md:flex-row p-5">
@@ -52,26 +53,42 @@ export default function ItemDetails({ item, isLoading }: ItemDetailsProps) {
                         </div>
                     </div>
 
-                    <div className="p-6 pt-0 flex-grow flex items-start text-left">
+                    <div className="p-6 pt-0 grow flex items-start text-left">
                         <p className="text-[18px] text-justify">{item.description}</p>
                     </div>
 
                     <div className="gap-4 px-6 mt-auto py-6">
                         {isAuthenticated ? (
-                            <div className="flex flex-col gap-4">
-                                <button onClick={() => addProductToCart(item.id)} className={inCartInfo.className}>
-                                    {isLoading ? "Adding to cart..." : inCartInfo.text}
-                                    <ShoppingCart size={20} />
-                                </button>
-
-                                {inCartInfo.isFav ? (
-                                    <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 p-2 bg-white rounded w-full transition-colors duration-300" onClick={() => deleteFromFavorites(item.id)}>
-                                        <HeartCrack size={20} />
-                                    </button>
+                            <div className="flex justify-center m-auto flex-col gap-5 w-[300px]">
+                                {inCartInfo ? (
+                                    <div className="flex items-center justify-center">
+                                        <button onClick={() => deleteProductFromCart(item.id)} className="flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(204,0,0,0.78)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[rgba(119,0,0,1)] h-10 px-10 rounded transition-colors duration-300">
+                                            {isLoading ? "Removing from cart..." : "Remove from cart"}
+                                            <ShoppingCart size={20} />
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <button className="cursor-pointer flex items-center gap-2 text-white font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 p-2 rounded bg-white w-full transition-colors duration-300" onClick={() => addToFavorites(item.id)}>
-                                        <Heart size={20} />
-                                    </button>
+                                    <div className="flex items-center justify-center">
+                                        <button onClick={() => addProductToCart(item.id)} className={inCartInfo ? "flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-10 px-10 rounded transition-colors duration-300" : "flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-10 px-10 rounded transition-colors duration-300"}>
+                                            {isLoading ? "Adding to cart..." : inCartInfo ? "Added to cart" : "Add to cart "}
+                                            <ShoppingCart size={20} />
+                                        </button>
+                                    </div>
+                                )}
+                                {isFav ? (
+                                    <div className="flex items-center justify-center">
+                                        <button onClick={() => deleteFromFavorites(item.id)} className="flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(204,0,0,0.78)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[rgba(119,0,0,1)] h-10 px-10 rounded transition-colors duration-300">
+                                            {isLoading ? "Removing from favorites..." : "Remove from favorites"}
+                                            <HeartCrack size={20} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center">
+                                        <button onClick={() => addToFavorites(item.id)} className="flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-10 px-10 rounded transition-colors duration-300">
+                                            {isLoading ? "Adding to favorites..." : "Add to favorites"}
+                                            <Heart size={20} />
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         ) : (
@@ -80,7 +97,7 @@ export default function ItemDetails({ item, isLoading }: ItemDetailsProps) {
                                     <span>Add to cart</span>
                                     <MousePointerClick size={25} />
                                 </button>
-                                <button className="cursor-pointer flex items-center gap-2 text-black justify-center font-semibold cursor-pointer border-0 outline-0 hover:bg-gray-200 rounded p-2 transition-colors  duration-300 text-center bg-white w-full text-[17px]" onClick={() => handleClickLogin()}>
+                                <button className=" flex items-center gap-2 text-black justify-center font-semibold cursor-pointer border-0 outline-0 hover:bg-gray-200 rounded p-2 transition-colors  duration-300 text-center bg-white w-full text-[17px]" onClick={() => handleClickLogin()}>
                                     <p>Add to favorites</p><Heart size={20} fill="rgba(47,104,247,1)" color="rgba(47,104,247,1)" />
                                 </button>
                             </div>
@@ -114,7 +131,7 @@ export default function ItemDetails({ item, isLoading }: ItemDetailsProps) {
                     {activeTab === 'description' && (
                         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                             <h3 className="text-[30px] font-bold mb-4 text-left">Product Description</h3>
-                            <p className="flex-grow flex text-[18px] items-center text-left">{item.description}</p>
+                            <p className="grow flex text-[18px] items-center text-left">{item.description}</p>
                             <table className="w-full border-collapse border border-gray-200/10 mt-10">
                                 <thead>
                                     <tr className="bg-[rgba(47,104,247,1)]">
