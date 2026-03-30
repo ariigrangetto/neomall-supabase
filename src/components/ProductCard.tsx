@@ -1,4 +1,5 @@
-import type { Products } from "../types.d.ts";
+/* eslint-disable react/display-name */
+import type { CartItem, Products } from "../types.d.ts";
 import React from "react";
 import { Heart, HeartCrack, MousePointerClick, ShoppingCart } from "lucide-react";
 import { Link, useNavigate } from "react-router";
@@ -6,7 +7,7 @@ import useCartActions from "../hooks/useCartActions.tsx";
 
 interface ProductCartProps {
     product: Products;
-    inCartInfo: { className: string, inCart: boolean };
+    inCartInfo: { className: string, inCart: boolean | CartItem };
     isLoading: boolean;
     isAuthenticated: boolean;
 }
@@ -14,14 +15,14 @@ interface ProductCartProps {
 export const ProductCard = React.memo(({
     product, inCartInfo, isLoading, isAuthenticated
 }: ProductCartProps) => {
-    const { wishUserList, addProductToCart, addToFavorites, deleteFromFavorites, deleteProductFromCart } = useCartActions();
+    const { wishListMap, addProductToCart, addToFavorites, deleteFromFavorites, deleteProductFromCart } = useCartActions();
     const navigate = useNavigate();
 
     const handleClickLogin = () => {
         navigate("/login");
     }
 
-    const isFav = wishUserList?.some((item) => item.product_id === product.id) ?? false;
+    const isFav = wishListMap?.has(product.id) ?? false;
 
     return (
         <li className="flex bg-[rgba(23,23,23,1)] rounded text-white " key={product.id}>
@@ -53,7 +54,7 @@ export const ProductCard = React.memo(({
                     <strong className="text-center text-xl">${product.price}</strong>
                 </div>
 
-                <div className="p-2 px-6  flex-grow flex items-center justify-center text-center">
+                <div className="p-2 px-6 grow flex items-center justify-center text-center">
                     <p className="text-[16px] text-justify line-clamp-4">{product.description}</p>
                 </div>
 
