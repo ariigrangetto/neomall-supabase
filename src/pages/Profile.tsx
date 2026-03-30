@@ -10,6 +10,7 @@ export default function Profile() {
   const { setIsAuthenticated } = useUserActions();
   const { logout, sendPasswordResetEmail } = useUserActions();
   const [recoveryMessage, setRecoveryMessage] = useState<string>("");
+  const [recoveryErrorMessage, setRecoveryErrorMessage] = useState<string>("");
   const resetId = useRef<number | null>(null);
   const navigate = useNavigate();
 
@@ -23,8 +24,8 @@ export default function Profile() {
 
   const handleResetPassword = async () => {
     const error = await sendPasswordResetEmail(user.email);
-    if (error) {
-      console.log(error);
+    if (error?.status === 429) {
+      setRecoveryErrorMessage("Too many attempts. Please wait a few minutes.");
       return;
     }
     setRecoveryMessage("Password reset email sent! Check your inbox.");
@@ -34,6 +35,9 @@ export default function Profile() {
     }
     resetId.current = setTimeout(() => {
       setRecoveryMessage("");
+      if (recoveryErrorMessage) {
+        setRecoveryMessage("");
+      }
     }, 5000);
 
   }
@@ -64,7 +68,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <main className="flex-grow flex items-center justify-center">
+      <main className="grow flex items-center justify-center">
         <div className="flex flex-col items-center justify-center rounded-lg p-8 w-150 mx-auto">
           <img src="/profilePic.png" alt="profile image" className="h-30 rounded-full" />
           <div className="text-center p-4 mt-5">
@@ -83,8 +87,9 @@ export default function Profile() {
               Reset Password
             </button>
           </div>
+          {recoveryMessage && <p className="text-green-500 border border-gray-500 rounded-full px-5 py-2 mt-2 text-center flex items-center gap-2"><CircleAlert /> {recoveryMessage}</p>}
+          {recoveryErrorMessage && <p className="text-red-500 border border-gray-500 rounded-full px-5 py-2 mt-2 text-center flex items-center gap-2"><CircleAlert /> {recoveryErrorMessage}</p>}
         </div>
-        {recoveryMessage && <p className="text-green-500 border border-gray-500 rounded-full px-5 py-2 mt-2 text-center"><CircleAlert />{recoveryMessage}</p>}
       </main >
       <Footer />
     </div >
