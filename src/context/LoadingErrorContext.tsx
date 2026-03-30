@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { createContext, useState, type SetStateAction } from "react";
 
 interface LoadingProviderProp {

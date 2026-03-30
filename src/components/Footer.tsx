@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 export default function Footer() {
   const year = new Date().getFullYear();
   return (

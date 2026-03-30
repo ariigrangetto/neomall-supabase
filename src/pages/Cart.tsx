@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { ArrowLeft, Frown, Minus, Plus } from "lucide-react";
 import useCartActions from "../hooks/useCartActions.tsx";
 import { Link, useNavigate } from "react-router";

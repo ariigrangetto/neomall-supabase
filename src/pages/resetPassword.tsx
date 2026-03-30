@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { TextField } from "@mui/material";
 import { useNavigate } from "react-router";
 import Footer from "../components/Footer.tsx";
@@ -56,7 +57,7 @@ export default function ResetPassword() {
     return (
         <div className="min-h-screen flex flex-col">
             <title>Reset Password</title>
-            <main className="flex-grow flex items-center justify-center">
+            <main className="grow flex items-center justify-center">
                 <div className="border border-gray-200/10 w-130 p-5 py-20 rounded-lg">
                     <div className="flex items-center justify-center gap-2">
                         <button onClick={() => navigate("/")}>

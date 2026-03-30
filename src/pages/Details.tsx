@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { Link, useNavigate, useParams } from "react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import useUrl from "../hooks/useUrl.tsx";

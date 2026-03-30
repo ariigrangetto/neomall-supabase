@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { Search } from "lucide-react";
 import { useRef, useState } from "react";
 import useFilters from "../hooks/useFilters.tsx";

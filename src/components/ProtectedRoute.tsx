@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import useUserActions from "../hooks/useUserActions.tsx";
 
 interface Props {

@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { Link, useNavigate } from "react-router";
 import Footer from "../components/Footer.tsx";
 

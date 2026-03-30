@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { createBrowserRouter, redirect } from "react-router";
 import Home from "./pages/Home.tsx";
 import Products from "./pages/Products.tsx";
