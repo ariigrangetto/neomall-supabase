@@ -47,4 +47,5 @@ export interface WishList {
   user_id: string;
   product_id: number | string;
   date: string;
+  Products: Products;
 }
