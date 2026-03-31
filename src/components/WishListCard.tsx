@@ -1,6 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { HeartCrack } from "lucide-react";
-import type { Products } from "../types";
+import type { Products } from "../types.d.ts";
 
 interface WishListCardProps {
     product: Products;

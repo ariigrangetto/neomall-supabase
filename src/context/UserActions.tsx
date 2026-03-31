@@ -1,6 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { createContext, useEffect, useState, type Dispatch } from "react";
-import supabase from "../supabase/client.js";
+import supabase from "../supabase/client.ts";
 import { useNavigate } from "react-router";
 
 

@@ -1,6 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { createContext, useEffect, useState } from "react";
-import supabase from "../supabase/client.js"
+import supabase from "../supabase/client.ts";
 import type { CartItem, Rating, WishList } from "../types.d.ts";
 import { useMemo } from "react";
 
@@ -118,7 +118,7 @@ export default function CartProvider({ children }: CartProviderProps) {
                 await wishList(currentUserId);
             }
 
-            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
                 if (session?.user) {
                     setupWishListSubscription(session.user.id);
                 } else {

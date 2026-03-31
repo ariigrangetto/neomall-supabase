@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import useFilters from "./useFilters.tsx";
-import supabase from "../supabase/client.js";
+import supabase from "../supabase/client.ts";
 import type { Products } from "../types.d.ts";
 import useLoadingAndError from "./useLoadingAndError.tsx";
 

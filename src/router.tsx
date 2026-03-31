@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { createBrowserRouter, redirect } from "react-router";
 import { lazy } from "react";
-import supabase from "./supabase/client.js";
+import supabase from "./supabase/client.ts";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import RootLayout from "./layout/RootLayaout.tsx";
 

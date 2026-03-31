@@ -1,7 +1,7 @@
 import { ArrowLeft, Frown } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import useCartActions from "../hooks/useCartActions";
-import WishListCard from "../components/WishListCard";
+import useCartActions from "../hooks/useCartActions.tsx";
+import WishListCard from "../components/WishListCard.tsx";
 
 /* eslint-disable react/react-in-jsx-scope */
 export default function WishList() {
