@@ -8,15 +8,7 @@ import useUserActions from "../hooks/useUserActions.tsx";
 export default function ListOfProducts() {
   const { products, loading, error } = useUrl();
   const { isAuthenticated } = useUserActions();
-  const { loadingProductInCartId, cartItemsMap } = useCartActions();
-
-  function findItem(productId: number | string) {
-    const inCart = cartItemsMap?.get(productId) ?? false;
-    const className = inCart ? "flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(0,150,32,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#007a1a] h-10 px-10 rounded transition-colors duration-300"
-      : "flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(7,75,248,1)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[#0335b4] h-10 px-10 rounded transition-colors duration-300"
-
-    return { className, inCart };
-  }
+  const { loadingProductInCartId, cartItemsMap, wishListMap, addProductToCart, addToFavorites, deleteFromFavorites, deleteProductFromCart } = useCartActions();
 
   return (
     <main className="min-h-screen">
@@ -52,9 +44,14 @@ export default function ListOfProducts() {
                   <ProductCard
                     key={product.id}
                     product={product}
-                    inCartInfo={findItem(product.id)}
+                    inCart={!!cartItemsMap?.get(product.id)}
+                    isFav={!!wishListMap?.get(product.id)}
                     isLoading={loadingProductInCartId === product.id}
                     isAuthenticated={isAuthenticated}
+                    addProductToCart={addProductToCart}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    deleteProductFromCart={deleteProductFromCart}
                   />
                 )
               })}
@@ -66,7 +63,7 @@ export default function ListOfProducts() {
               <PackageX className="w-12 h-12 text-gray-400" />
             </div>
             <h1 className="text-2xl font-bold text-white">No products found</h1>
-            <p className="text-gray-400 max-w-md">We couldn't find any products matching your current search. Try adjusting your filters.</p>
+            <p className="text-gray-400 max-w-md">We couldn&apos;t find any products matching your current search. Try adjusting your filters.</p>
           </div>
         )
       }
