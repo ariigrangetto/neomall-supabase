@@ -19,6 +19,7 @@ interface CartContextType {
     incrementQuantity: (productId: number | string) => Promise<void | undefined>;
     cartItemsMap: Map<number | string | undefined, CartItem>;
     wishListMap: Map<number | string | undefined, WishList>;
+    loadingCart: boolean;
 }
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -28,15 +29,19 @@ interface CartProviderProps {
 }
 
 export default function CartProvider({ children }: CartProviderProps) {
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCart] = useState<CartItem[] | undefined>();
     const [loadingProductInCartId, setLoadingProductInCartId] = useState<number | string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [cartId, setCartId] = useState<string | number | null>(null);
     const [wishUserList, setWishUserList] = useState<WishList[]>([]);
+    const [loadingCart, setLoadingCart] = useState<boolean>(false);
 
     useEffect(() => {
         let cartChannel: any;
         let wishListChannel: any;
+        let cartAuthSub: any;
+        let wishAuthSub: any;
+
         function cartChannelSubscribe() {
             const setupCartSubscription = async (currentUserId: string) => {
                 let currentCartId = null;
@@ -64,7 +69,6 @@ export default function CartProvider({ children }: CartProviderProps) {
                             filter: `cart_id=eq.${currentCartId}`,
                         },
                         async () => {
-                            console.log("working cart")
                             await getProductsInCart(currentCartId);
                         },
                     )
@@ -73,7 +77,7 @@ export default function CartProvider({ children }: CartProviderProps) {
             }
 
             // onAuthStateChange => eventos de autenticacion en tiempo real
-            supabase.auth.onAuthStateChange((_event, session) => {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
                 if (session?.user) {
                     setUserId(session.user.id);
                     setupCartSubscription(session.user.id);
@@ -87,6 +91,7 @@ export default function CartProvider({ children }: CartProviderProps) {
                     }
                 }
             });
+            cartAuthSub = subscription;
         }
         cartChannelSubscribe();
 
@@ -114,7 +119,7 @@ export default function CartProvider({ children }: CartProviderProps) {
                 await wishList(currentUserId);
             }
 
-            supabase.auth.onAuthStateChange((_event, session) => {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
                 if (session?.user) {
                     setupWishListSubscription(session.user.id);
                 } else {
@@ -125,12 +130,15 @@ export default function CartProvider({ children }: CartProviderProps) {
                     }
                 }
             });
+            wishAuthSub = subscription;
         }
         wishListChannelSubscribe();
 
         return () => {
             if (cartChannel) supabase.removeChannel(cartChannel);
             if (wishListChannel) supabase.removeChannel(wishListChannel);
+            if (cartAuthSub) cartAuthSub.unsubscribe();
+            if (wishAuthSub) wishAuthSub.unsubscribe();
         }
     }, []);
 
@@ -138,6 +146,7 @@ export default function CartProvider({ children }: CartProviderProps) {
         const idToUse = targetCartId !== undefined ? targetCartId : cartId;
         if (!idToUse) return;
         try {
+            setLoadingCart(true);
             const { data, error } = await supabase
                 .from("CartItems")
                 .select("*, Products (*)")
@@ -147,16 +156,20 @@ export default function CartProvider({ children }: CartProviderProps) {
                 console.error("Error fetching products in cart:", error.message);
                 return;
             }
-            setCart(data || []);
+            setCart(data);
         } catch (err: unknown) {
             console.error("General error in getProductsInCart:", err instanceof Error ? err.message : String(err));
+        } finally {
+            setLoadingCart(false);
         }
     };
 
     const addProductToCart = async (productId: number | string) => {
         if (!cartId) return;
         setLoadingProductInCartId(productId);
+        //optimistic update
         try {
+            setCart((prev) => [...prev, { id: crypto.randomUUID(), cart_id: cartId, product_id: productId, quantity: 1, date: Date.now().toString() }]);
             const { data: existingProducts, error: existError } = await supabase
                 .from("CartItems")
                 .select()
@@ -190,7 +203,7 @@ export default function CartProvider({ children }: CartProviderProps) {
             if (productNotFoundError) {
                 console.error("Error searching product in cart:", productNotFoundError.message);
             }
-            if (productInCart) {
+            if (productInCart && productInCart.length > 0) {
                 const updateQuantity = productInCart[0].quantity + 1;
                 try {
                     const { error: updateError } = await supabase.from("CartItems").update({ quantity: updateQuantity }).eq("product_id", productId).eq("cart_id", cartId)
@@ -202,12 +215,13 @@ export default function CartProvider({ children }: CartProviderProps) {
                 }
             }
         } catch (err: unknown) {
-            console.error("General error in updateQuantity:", err instanceof Error ? err.message : String(err));
+            console.error("General error in incrementing quantity:", err instanceof Error ? err.message : String(err));
         }
     }
 
     const updateQuantity = async (productId: string | number) => {
         if (!cartId) return;
+        console.log(productId);
         try {
             const { error: insertError } = await supabase.from("CartItems").insert({
                 product_id: productId,
@@ -308,7 +322,7 @@ export default function CartProvider({ children }: CartProviderProps) {
         const idToUse = targetUserId !== undefined ? targetUserId : userId;
         if (!idToUse) return;
         try {
-            const { data, error } = await supabase.from("wishList").select().eq("user_id", idToUse)
+            const { data, error } = await supabase.from("wishList").select("*, Products(*)").eq("user_id", idToUse)
             if (error) {
                 console.error("Error fetching wishlist:", error.message)
             }
@@ -350,28 +364,33 @@ export default function CartProvider({ children }: CartProviderProps) {
     }
 
     const cartItemsMap = useMemo(() => {
-        const map = new Map();
+        const map = new Map<number | string | undefined, CartItem>();
         if (cart) {
             cart.forEach((item) => {
                 map.set(item.product_id, item);
             })
-            return map;
         }
+        return map;
     }, [cart]);
 
     const wishListMap = useMemo(() => {
-        const map = new Map();
+        const map = new Map<number | string | undefined, WishList>();
         if (wishUserList) {
             wishUserList.forEach(item => {
                 map.set(item.product_id, item);
             });
-            return map;
         }
-    }, [wishUserList])
+        return map;
+    }, [wishUserList]);
 
+
+    //avoiding unnecessary re-renders
+    const contextValue = useMemo(() => ({
+        cart, addProductToCart, deleteProductFromCart, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, wishList, getProductReviews, incrementQuantity, decrementQuantity, wishUserList, cartItemsMap, wishListMap, loadingCart
+    }), [cart, loadingProductInCartId, wishUserList, cartItemsMap, wishListMap, loadingCart]);
 
     return (
-        <CartContext.Provider value={{ cart, addProductToCart, deleteProductFromCart, loadingProductInCartId, deleteAllProductsInCart, addToFavorites, deleteFromFavorites, wishList, getProductReviews, incrementQuantity, decrementQuantity, wishUserList, cartItemsMap, wishListMap }}>
+        <CartContext.Provider value={contextValue}>
             {children}
         </CartContext.Provider>
     )
