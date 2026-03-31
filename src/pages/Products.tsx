@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router";
 import Footer from "../components/Footer.tsx";
 import useFilters from "../hooks/useFilters.tsx";
 import { useRef, useState } from "react";
-import { Search, ShoppingCart, X } from "lucide-react";
+import { Heart, Search, ShoppingCart, X } from "lucide-react";
 
 export default function Products() {
   const { setFilters } = useFilters();
@@ -121,8 +121,13 @@ export default function Products() {
         </div>
         <div className="flex items-center shrink-0 gap-3">
           <nav className="w-10 text-center">
+            <Link to="/wishList">
+              <Heart size={22} aria-label="wishList" />
+            </Link>
+          </nav>
+          <nav className="w-10 text-center">
             <Link to="/cart">
-              <ShoppingCart size={25} aria-label="cart" />
+              <ShoppingCart size={22} aria-label="cart" />
             </Link>
           </nav>
           <nav className="w-10 text-center">
