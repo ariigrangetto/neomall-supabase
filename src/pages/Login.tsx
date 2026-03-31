@@ -31,7 +31,7 @@ export default function Login() {
 
     if (error) {
       setErrorMessage(
-        error.status === 400
+        error && 'status' in error && (error as any).status === 400
           ? "La cuenta que ingresó aún no existe"
           : "Algo salió mal. Intente nuevamente!",
       );
