@@ -7,7 +7,6 @@ import WishListCard from "../components/WishListCard";
 export default function WishList() {
     const navigate = useNavigate();
     const { wishUserList, deleteFromFavorites } = useCartActions();
-    console.log(wishUserList);
 
     const handleRedirectProducts = () => {
         navigate("/products");

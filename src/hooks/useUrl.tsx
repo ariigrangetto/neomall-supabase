@@ -57,7 +57,6 @@ export default function useUrl() {
         if (error) {
           setLoading(false);
           setError(true);
-          console.log("Error fetching products" + error.message);
           throw new Error(error.message);
         }
 

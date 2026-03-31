@@ -26,7 +26,6 @@ export default function Login() {
     setLoading(true);
 
     const error = await login(state.email, state.password);
-    console.log(error);
 
     setLoading(false);
 

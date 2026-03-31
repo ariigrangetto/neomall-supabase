@@ -17,7 +17,7 @@ export default function Profile() {
   const handleSignOut = async () => {
     const error = await logout();
     if (error) {
-      console.log(error);
+      throw new Error(error.message);
     }
     setIsAuthenticated(false);
   }
