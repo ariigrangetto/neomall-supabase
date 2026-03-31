@@ -51,7 +51,7 @@ export default function useUrl() {
 
         const { data, count, error } = await query;
 
-        const totalPagesCalc = Math.ceil(count / RESULTS_PER_PAGE);
+        const totalPagesCalc = Math.ceil((count || 0) / RESULTS_PER_PAGE);
         setTotalPages(totalPagesCalc);
 
         if (error) {

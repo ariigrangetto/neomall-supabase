@@ -8,8 +8,8 @@ interface UserContextProps {
     login: (email: string, password: string) => Promise<Error | undefined>;
     register: (email: string, password: string, name: string, lastname: string) => Promise<Error | undefined>;
     logout: () => Promise<Error | undefined>;
-    sendPasswordResetEmail: (email: string) => Promise<Error | null>;
-    updateUserPassword: (newPassword: string) => Promise<Error | null>;
+    sendPasswordResetEmail: (email: string) => Promise<Error | undefined>;
+    updateUserPassword: (newPassword: string) => Promise<Error | undefined>;
     isAuthenticated: boolean;
     setIsAuthenticated: Dispatch<React.SetStateAction<boolean>>
     loginWithGoogle: () => Promise<Error | undefined>
@@ -62,7 +62,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             return;
         } catch (error: unknown) {
             console.error("Error login: ", error instanceof Error ? error.message : error);
-            return error;
+            return error as Error;
         }
     }
 
@@ -86,7 +86,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             return;
         } catch (error: unknown) {
             console.error("Error register: ", error instanceof Error ? error.message : error);
-            return error;
+            return error as Error;
         }
     }
 
@@ -100,7 +100,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             return;
         } catch (error: unknown) {
             console.error("Error logout: ", error instanceof Error ? error.message : error);
-            return error;
+            return error as Error;
         }
     }
 
@@ -116,7 +116,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             return;
         } catch (error: unknown) {
             console.error("Error sendPasswordResetEmail: ", error instanceof Error ? error.message : error);
-            return error;
+            return error as Error;
         }
     }
 
@@ -130,7 +130,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             return;
         } catch (error: unknown) {
             console.error("Error updateUserPassword: ", error instanceof Error ? error.message : error);
-            return error;
+            return error as Error;
         }
     }
 
@@ -147,7 +147,7 @@ export default function UserProvider({ children }: { children: React.ReactNode }
             return;
         } catch (error: unknown) {
             console.error("Error loginWithGoogle: ", error instanceof Error ? error.message : error);
-            return error;
+            return error as Error;
         }
     }
 

@@ -118,7 +118,7 @@ export default function CartProvider({ children }: CartProviderProps) {
                 await wishList(currentUserId);
             }
 
-            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
                 if (session?.user) {
                     setupWishListSubscription(session.user.id);
                 } else {
@@ -168,7 +168,7 @@ export default function CartProvider({ children }: CartProviderProps) {
         setLoadingProductInCartId(productId);
         //optimistic update
         try {
-            setCart((prev) => [...prev, { id: crypto.randomUUID(), cart_id: cartId, product_id: productId, quantity: 1, date: Date.now().toString() }]);
+            setCart((prev) => prev ? [...prev, { id: crypto.randomUUID(), cart_id: cartId as number, product_id: productId as number, quantity: 1, date: Date.now().toString(), Products: {} as any }] : undefined);
             const { data: existingProducts, error: existError } = await supabase
                 .from("CartItems")
                 .select()
@@ -291,7 +291,7 @@ export default function CartProvider({ children }: CartProviderProps) {
 
     const deleteProductFromCart = async (productId: string | number) => {
         if (!cartId) return;
-        setCart((prev) => prev.filter((item) => item.product_id !== productId))
+        setCart((prev) => prev ? prev.filter((item) => item.product_id !== productId) : undefined)
         try {
             const { error: deleteError } = await supabase.from("CartItems").delete().eq("product_id", productId).eq("cart_id", cartId)
             if (deleteError) {
@@ -308,9 +308,10 @@ export default function CartProvider({ children }: CartProviderProps) {
             if (error) {
                 console.error("Error fetching product reviews:", error.message)
             }
-            return data;
+            return data as Rating[] | undefined;
         } catch (error: unknown) {
             console.error("General error in getProductReviews:", error instanceof Error ? error.message : String(error))
+            return undefined;
         }
     }
 
@@ -349,7 +350,7 @@ export default function CartProvider({ children }: CartProviderProps) {
         if (!userId) return;
         //optimistic update
         setWishUserList((prev) => [...prev, {
-            id: crypto.randomUUID(), user_id: userId, product_id: productId, date: Date.now().toString()
+            id: crypto.randomUUID(), user_id: userId, product_id: productId as number, date: Date.now().toString(), Products: {} as any
         }])
         try {
             const { error } = await supabase.from("wishList").insert({ user_id: userId, product_id: productId })

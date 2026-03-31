@@ -24,7 +24,7 @@ export default function Profile() {
 
   const handleResetPassword = async () => {
     const error = await sendPasswordResetEmail(user.email);
-    if (error?.status === 429) {
+    if (error && 'status' in error && (error as any).status === 429) {
       setRecoveryErrorMessage("Too many attempts. Please wait a few minutes.");
       return;
     }
