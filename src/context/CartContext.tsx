@@ -5,7 +5,7 @@ import type { CartItem, Rating, WishList } from "../types.d.ts";
 import { useMemo } from "react";
 
 interface CartContextType {
-    cart: CartItem[];
+    cart: CartItem[] | undefined;
     loadingProductInCartId: number | string | null;
     addProductToCart: (productId: number | string) => Promise<void | undefined>;
     deleteAllProductsInCart: () => Promise<void | undefined>;
@@ -111,7 +111,6 @@ export default function CartProvider({ children }: CartProviderProps) {
                             filter: `user_id=eq.${currentUserId}`,
                         },
                         async () => {
-                            console.log("wishList changed");
                             await wishList(currentUserId);
                         },
                     )
@@ -221,7 +220,6 @@ export default function CartProvider({ children }: CartProviderProps) {
 
     const updateQuantity = async (productId: string | number) => {
         if (!cartId) return;
-        console.log(productId);
         try {
             const { error: insertError } = await supabase.from("CartItems").insert({
                 product_id: productId,
