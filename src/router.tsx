@@ -1,17 +1,20 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { createBrowserRouter, redirect } from "react-router";
-import Home from "./pages/Home.tsx";
-import Products from "./pages/Products.tsx";
-import Cart from "./pages/Cart.tsx";
+import { lazy } from "react";
 import supabase from "./supabase/client.js";
-import Login from "./pages/Login.tsx";
-import Register from "./pages/Register.tsx";
-import Profile from "./pages/Profile.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import RootLayout from "./layout/RootLayaout.tsx";
-import Details from "./pages/Details.tsx";
-import NotFound from "./pages/404.tsx";
-import ResetPassword from "./pages/resetPassword.tsx";
+
+const Home = lazy(() => import("./pages/Home.tsx"));
+const Products = lazy(() => import("./pages/Products.tsx"));
+const Cart = lazy(() => import("./pages/Cart.tsx"));
+const Login = lazy(() => import("./pages/Login.tsx"));
+const Register = lazy(() => import("./pages/Register.tsx"));
+const Profile = lazy(() => import("./pages/Profile.tsx"));
+const Details = lazy(() => import("./pages/Details.tsx"));
+const NotFound = lazy(() => import("./pages/404.tsx"));
+const ResetPassword = lazy(() => import("./pages/resetPassword.tsx"));
+const WishList = lazy(() => import("./pages/WishList.tsx"));
 
 const getUser = async () => {
   const {
@@ -74,6 +77,16 @@ export const router = createBrowserRouter(
         {
           path: "/resetPassword",
           element: <ResetPassword />,
+          errorElement: <ErrorPage />,
+          loader: async () => {
+            const user = await getUser();
+            if (!user) return redirect("/login");
+            return { user };
+          }
+        },
+        {
+          path: "/wishList",
+          element: <WishList />,
           errorElement: <ErrorPage />,
           loader: async () => {
             const user = await getUser();
