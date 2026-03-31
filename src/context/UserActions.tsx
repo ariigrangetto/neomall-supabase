@@ -23,34 +23,29 @@ export default function UserProvider({ children }: { children: React.ReactNode }
     const navigate = useNavigate();
 
     useEffect(() => {
-        let data: any;
-        async function checkSession() {
-            data = await supabase.auth.onAuthStateChange((event, session) => {
-                if (event === "INITIAL_SESSION" && session) {
-                    navigate("/products");
-                    setIsAuthenticated(true);
-                }
-                if (event === "SIGNED_IN" && session) {
-                    navigate("/products");
-                    setIsAuthenticated(true);
-                }
-                if (event === "SIGNED_OUT") {
-                    navigate("/login");
-                    setIsAuthenticated(false)
-                }
-                if (event === "PASSWORD_RECOVERY") {
-                    navigate("/resetPassword");
-                }
-                if (event === "USER_UPDATED") {
-                    navigate("/profile");
-                }
-            })
-        }
-        checkSession();
+        const { data } = supabase.auth.onAuthStateChange((event, session) => {
+            if ((event === "INITIAL_SESSION" && session && window.location.pathname === "/") || (event === "SIGNED_IN" && session)) {
+                navigate("/products");
+                setIsAuthenticated(true);
+            }
 
-        return (() => {
-            data.subscription.unsubscribe();
-        })
+            if (event === "SIGNED_OUT") {
+                navigate("/login");
+                setIsAuthenticated(false);
+            }
+
+            if (event === "PASSWORD_RECOVERY") {
+                navigate("/resetPassword");
+            }
+
+            if (event === "USER_UPDATED") {
+                navigate("/profile");
+            }
+        });
+
+        return () => {
+            data?.subscription?.unsubscribe();
+        };
     }, [])
 
     const login = async (email: string, password: string) => {
