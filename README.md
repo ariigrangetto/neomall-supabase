@@ -1,73 +1,48 @@
-# React + TypeScript + Vite
+# Neomall Ecommerce 🛒
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- `React`
+- `TypeScript`
+- `Supabase`
+- `Jest`
+- `Tailwind CSS`
+- `Agent IA`
+- `Vercel`
 
-Currently, two official plugins are available:
+## 🚀 Project Description
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+I developed a modern ecommerce web application focused on performance, scalability, and user experience. The app allows users to browse products, manage a shopping cart, and perform authenticated actions, combining a robust frontend architecture with a cloud-based backend.
 
-## React Compiler
+## 🧠 Key Differentiator
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+One of the most distinctive aspects of this project is the integration of AI agents as development assistants, used to:
 
-## Expanding the ESLint configuration
+- Optimize application performance by identifying unnecessary React re-renders and suggesting improvements <br>
+- Ensure consistent and correct TypeScript typing, avoiding bad practices such as excessive use of any <br>
+- Monitor Supabase security and data integrity, helping detect potential risks or misconfigurations <br>
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+This approach helped elevate code quality and simulate a more professional development workflow.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🧩 Main Features
+- Dynamic product listing
+- Shopping cart management (add, remove, update items)
+- Favorites system
+- User authentication
+- Real-time data synchronization with backend
+- Render optimization for better performance
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🎯 Technical Approach
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+The development focused on:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Clear separation of concerns (components, logic, and state)
+Effective use of React hooks for state and side effects
+Avoiding direct mutations to maintain state integrity
+Applying performance optimization best practices
+Testing critical functionality
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+<img width="1920" height="955" alt="Captura de pantalla (172)" src="https://github.com/user-attachments/assets/5449aed0-a261-4089-b18e-6aa443471fca" />
+<img width="1920" height="955" alt="Captura de pantalla (176)" src="https://github.com/user-attachments/assets/a848bd5a-1662-4c4a-919d-3a41ba6aac6b" />
+<img width="1920" height="948" alt="Captura de pantalla (177)" src="https://github.com/user-attachments/assets/c822fcd3-3b40-420a-965e-02a7c0a5248e" />
+<img width="1920" height="950" alt="Captura de pantalla (173)" src="https://github.com/user-attachments/assets/2db18b0c-e977-44e5-be93-ef991312dc23" />
+<img width="1920" height="951" alt="Captura de pantalla (174)" src="https://github.com/user-attachments/assets/18d568da-45af-42a4-8724-43f7f405585d" />
+<img width="1920" height="944" alt="Captura de pantalla (175)" src="https://github.com/user-attachments/assets/76b099c6-97cb-4cd0-beca-5144aa244b72" />
