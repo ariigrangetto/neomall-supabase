@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import Home from '../src/pages/Home.tsx';
 import Products from '../src/pages/Products.tsx';
@@ -8,14 +8,18 @@ import CartProvider from '../src/context/CartContext.tsx';
 import UserProvider from '../src/context/UserActions.tsx';
 import Login from '../src/pages/Login.tsx';
 
-test(`Finde "explore products" button`, () => {
+afterEach(() => {
+    cleanup();
+});
+
+test(`Find "explore products" button`, () => {
     render(<MemoryRouter><Home /></MemoryRouter>);
     const exploreBtn = screen.getByRole("button", { name: /explore products/i });
     expect(exploreBtn).toBeInTheDocument();
 });
 
 
-test(`Redirect to /products when "expolore products" button is clicked`, async () => {
+test(`Redirect to /products when "explore products" button is clicked`, async () => {
     render(
         <MemoryRouter initialEntries={["/"]}>
             <FilterProvider>
