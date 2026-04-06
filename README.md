@@ -1,3 +1,5 @@
+[![Deployment Pipeline](https://github.com/ariigrangetto/neomall-supabase/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ariigrangetto/neomall-supabase/actions/workflows/pipeline.yml)
+
 # Neomall Ecommerce 🛒
 
 - `React`
