@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, cleanup, act } from "@testing-library/react";
 import Products from "../src/pages/Products.tsx";
 import { MemoryRouter } from "react-router";
 import FilterProvider from "../src/context/FilterContext.tsx";
@@ -6,8 +6,12 @@ import LoadingProvider from "../src/context/LoadingErrorContext.tsx";
 import CartProvider from "../src/context/CartContext.tsx";
 import UserProvider from "../src/context/UserActions.tsx";
 
-test(`Find "category" select`, () => {
-    render(<MemoryRouter>
+afterEach(() => {
+    cleanup();
+});
+
+test(`Find "category" select`, async () => {
+    render(<MemoryRouter initialEntries={["/products"]}>
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
@@ -18,12 +22,12 @@ test(`Find "category" select`, () => {
             </LoadingProvider>
         </FilterProvider>
     </MemoryRouter>);
-    const categoryBtn = screen.getByRole("combobox", { name: /category/i });
+    const categoryBtn = await screen.findByRole("combobox", { name: /category/i });
     expect(categoryBtn).toBeInTheDocument();
 });
 
-test(`Find "search" input`, () => {
-    render(<MemoryRouter>
+test(`Find "search" input`, async () => {
+    render(<MemoryRouter initialEntries={["/products"]}>
         <FilterProvider>
             <LoadingProvider>
                 <CartProvider>
@@ -34,39 +38,43 @@ test(`Find "search" input`, () => {
             </LoadingProvider>
         </FilterProvider>
     </MemoryRouter>);
-    const searchInput = screen.getByRole("textbox", { name: /search/i });
+    const searchInput = await screen.findByRole("textbox", { name: /search/i });
     expect(searchInput).toBeInTheDocument();
 });
 
-test(`Find cart link`, () => {
-    render(<MemoryRouter>
-        <FilterProvider>
-            <LoadingProvider>
-                <CartProvider>
-                    <UserProvider>
-                        <Products />
-                    </UserProvider>
-                </CartProvider>
-            </LoadingProvider>
-        </FilterProvider>
-    </MemoryRouter>);
-    const cartBtn = screen.getByRole("link", { name: /cart/i });
+test(`Find cart link`, async () => {
+    act(() => {
+        render(<MemoryRouter initialEntries={["/products"]}>
+            <FilterProvider>
+                <LoadingProvider>
+                    <CartProvider>
+                        <UserProvider>
+                            <Products />
+                        </UserProvider>
+                    </CartProvider>
+                </LoadingProvider>
+            </FilterProvider>
+        </MemoryRouter>);
+    });
+    const cartBtn = await screen.findByRole("link", { name: /cart/i });
     expect(cartBtn).toBeInTheDocument();
 });
 
-test(`Find user profile link`, () => {
-    render(<MemoryRouter>
-        <FilterProvider>
-            <LoadingProvider>
-                <CartProvider>
-                    <UserProvider>
-                        <Products />
-                    </UserProvider>
-                </CartProvider>
-            </LoadingProvider>
-        </FilterProvider>
-    </MemoryRouter>);
-    const profileBtn = screen.getByRole("img", { name: /profilePic/i });
+test(`Find user profile link`, async () => {
+    act(() => {
+        render(<MemoryRouter initialEntries={["/products"]}>
+            <FilterProvider>
+                <LoadingProvider>
+                    <CartProvider>
+                        <UserProvider>
+                            <Products />
+                        </UserProvider>
+                    </CartProvider>
+                </LoadingProvider>
+            </FilterProvider>
+        </MemoryRouter>);
+    });
+    const profileBtn = await screen.findByRole("img", { name: /profilePic/i });
     expect(profileBtn).toBeInTheDocument();
 });
 

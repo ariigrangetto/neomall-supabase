@@ -36,7 +36,7 @@ vi.mock("../src/hooks/useCartActions.tsx", () => ({
     default: vi.fn()
 }))
 
-test(`Find "add to cart" button in product card`, () => {
+test(`Find "add to cart" button in product card`, async () => {
     useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), deleteProductFromCart: vi.fn(), deleteFromFavorites: vi.fn() });
 
     render(<MemoryRouter initialEntries={["/products"]}>
@@ -50,7 +50,7 @@ test(`Find "add to cart" button in product card`, () => {
             </LoadingProvider>
         </FilterProvider>
     </MemoryRouter>);
-    const addToCartBtn = screen.getByRole("button", { name: /Add to cart/i });
+    const addToCartBtn = await screen.findByRole("button", { name: /Add to cart/i });
     expect(addToCartBtn).toBeInTheDocument();
 })
 
@@ -72,7 +72,7 @@ test(`Find "see details" button and redirect to product details page`, async () 
         </FilterProvider>
     </MemoryRouter>)
 
-    const seeDetailsBtn = screen.getByRole("link", { name: "See details" });
+    const seeDetailsBtn = await screen.findByRole("link", { name: "See details" });
     expect(seeDetailsBtn).toBeInTheDocument();
     fireEvent.click(seeDetailsBtn);
     await waitFor(() => {
@@ -80,7 +80,7 @@ test(`Find "see details" button and redirect to product details page`, async () 
     })
 })
 
-test("Find delete button when user is authenticated and product is in cart", () => {
+test("Find delete button when user is authenticated and product is in cart", async () => {
     useCartActions.mockReturnValue({ wishUserList: [], addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), deleteProductFromCart: vi.fn(), deleteFromFavorites: vi.fn() });
 
     render(<MemoryRouter initialEntries={["/products"]}>
@@ -94,7 +94,7 @@ test("Find delete button when user is authenticated and product is in cart", () 
             </LoadingProvider>
         </FilterProvider>
     </MemoryRouter>)
-    const removeBtn = screen.getByRole("button", { name: /remove from cart/i });
+    const removeBtn = await screen.findByRole("button", { name: /remove from cart/i });
     expect(removeBtn).toBeInTheDocument();
     // fireEvent.click(removeBtn);
     // expect(mockDeleteProductFromCart).toHaveBeenCalledWith(mockProduct.id);
@@ -114,6 +114,6 @@ test(`Call "handleClickLogin" when "add to cart" button is clicked and user is n
             </LoadingProvider>
         </FilterProvider>
     </MemoryRouter>);
-    const addToCartBtn = screen.getByRole("button", { name: /Add to cart/i });
+    const addToCartBtn = await screen.findByRole("button", { name: /Add to cart/i });
     expect(addToCartBtn).toBeInTheDocument();
 });

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, cleanup } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import FilterProvider from "../src/context/FilterContext.tsx";
 import LoadingProvider from "../src/context/LoadingErrorContext.tsx";
@@ -10,6 +10,10 @@ import useCartActions from "../src/hooks/useCartActions.tsx";
 import useLoadingAndError from "../src/hooks/useLoadingAndError.tsx";
 import useUserActions from "../src/hooks/useUserActions.tsx";
 import UserProvider from "../src/context/UserActions.tsx";
+
+afterEach(() => {
+    cleanup();
+});
 
 //mock hooks
 
@@ -39,7 +43,7 @@ const mockProduct = {
     stock: 10,
 }
 
-test(`Find "explore our products" in ListOfProducts component`, () => {
+test(`Find "explore our products" in ListOfProducts component`, async () => {
     useUrl.mockReturnValue({ products: [mockProduct] });
     useLoadingAndError.mockReturnValue({ error: false, loading: false });
     useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), loadingProductInCart: null, cart: [] });
@@ -49,11 +53,11 @@ test(`Find "explore our products" in ListOfProducts component`, () => {
         <ListOfProducts />
     </MemoryRouter>);
 
-    const heading = screen.getByRole("heading", { name: /explore our products/i });
+    const heading = await screen.findByRole("heading", { name: /explore our products/i });
     expect(heading).toBeInTheDocument();
 });
 
-test("Get error text when there is an error", () => {
+test("Get error text when there is an error", async () => {
     useUrl.mockReturnValue({ error: true, products: [mockProduct] });
     useLoadingAndError.mockReturnValue({ error: false, loading: false });
     useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), loadingProductInCart: null, cart: [] });
@@ -71,11 +75,11 @@ test("Get error text when there is an error", () => {
         </FilterProvider>
     </MemoryRouter>);
 
-    const errorText = screen.getByRole("heading", { name: /Oops! Something went wrong/i });
+    const errorText = await screen.findByRole("heading", { name: /Oops! Something went wrong/i });
     expect(errorText).toBeInTheDocument();
 });
 
-test("Get loading text when loading is true and products is undefined", () => {
+test("Get loading text when loading is true and products is undefined", async () => {
     useUrl.mockReturnValue({ error: false, loading: true, products: undefined });
     useLoadingAndError.mockReturnValue({ error: false, loading: false });
     useCartActions.mockReturnValue({ addProductToCart: vi.fn(), addToFavorites: vi.fn(), removeFromFavorites: vi.fn(), loadingProductInCart: null, cart: [] });
@@ -93,6 +97,6 @@ test("Get loading text when loading is true and products is undefined", () => {
         </FilterProvider>
     </MemoryRouter>);
 
-    const loadingText = screen.getByRole("heading", { name: /Loading products.../i });
+    const loadingText = await screen.findByRole("heading", { name: /Loading products.../i });
     expect(loadingText).toBeInTheDocument();
 });

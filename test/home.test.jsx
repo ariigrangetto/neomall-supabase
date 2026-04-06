@@ -12,9 +12,9 @@ afterEach(() => {
     cleanup();
 });
 
-test(`Find "explore products" button`, () => {
+test(`Find "explore products" button`, async () => {
     render(<MemoryRouter><Home /></MemoryRouter>);
-    const exploreBtn = screen.getByRole("button", { name: /explore products/i });
+    const exploreBtn = await screen.findByRole("button", { name: /explore products/i });
     expect(exploreBtn).toBeInTheDocument();
 });
 
@@ -36,7 +36,7 @@ test(`Redirect to /products when "explore products" button is clicked`, async ()
             </FilterProvider>
         </MemoryRouter>
     );
-    const exploreBtn = screen.getByRole("button", { name: /Explore products/i });
+    const exploreBtn = await screen.findByRole("button", { name: /Explore products/i });
     fireEvent.click(exploreBtn);
     await waitFor(() => {
         expect(screen.getByText("Explore our products")).toBeInTheDocument();
@@ -60,7 +60,7 @@ test(`Find "login" link`, async () => {
             </LoadingProvider>
         </FilterProvider>
     </MemoryRouter>);
-    const loginBtn = screen.getByRole("link", { name: /login/i });
+    const loginBtn = await screen.findByRole("link", { name: /login/i });
     fireEvent.click(loginBtn);
     await waitFor(() => {
         expect(screen.getByRole("heading", { name: /login/i })).toBeInTheDocument();
