@@ -67,7 +67,7 @@ export const ProductCard = React.memo(({
                         <div className="flex justify-center flex-col gap-5 w-[300px]">
                             {inCart ? (
                                 <div className="flex items-center justify-center">
-                                    <button onClick={() => deleteProductFromCart(product.id)} className="flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(204,0,0,0.78)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[rgba(119,0,0,1)] h-10 px-10 rounded transition-colors duration-300">
+                                    <button aria-label="remove from cart" onClick={() => deleteProductFromCart(product.id)} className="flex items-center w-full justify-center text-center gap-2 text-white bg-[rgba(204,0,0,0.78)] font-semibold cursor-pointer border-0 outline-0 hover:text-gray-200 hover:bg-[rgba(119,0,0,1)] h-10 px-10 rounded transition-colors duration-300">
                                         Remove from cart
                                         <ShoppingCart size={20} />
                                     </button>
