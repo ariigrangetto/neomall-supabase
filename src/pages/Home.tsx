@@ -13,7 +13,7 @@ export default function Home() {
     <>
       <title>NeoMall</title>
       <div className='min-h-screen flex flex-col'>
-        <main className='flex-grow flex flex-col items-center justify-center p-4'>
+        <main className='grow flex flex-col items-center justify-center p-4'>
           <div className='flex items-center mb-8 justify-center gap-2'>
             <button onClick={() => navigate("/")} className='outline-none border-none cursor-pointer'>
               <img
@@ -38,6 +38,7 @@ export default function Home() {
           </section>
           <section className='flex flex-col items-center mt-10'>
             <button
+              aria-label="explore products"
               onClick={() => handleClickProducts()}
               className='h-10 border border-[rgba(7,75,248,1)] w-60 rounded-full text-white cursor-pointer hover:bg-[rgba(7,75,248,0.8)] hover:text-white hover:border-0 hover:duration-500 transition-all font-semibold'
             >

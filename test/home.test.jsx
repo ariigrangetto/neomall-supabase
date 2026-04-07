@@ -7,10 +7,15 @@ import LoadingProvider from '../src/context/LoadingErrorContext.tsx';
 import CartProvider from '../src/context/CartContext.tsx';
 import UserProvider from '../src/context/UserActions.tsx';
 import Login from '../src/pages/Login.tsx';
+import useUserActions from '../src/hooks/useUserActions.tsx';
 
 afterEach(() => {
     cleanup();
 });
+
+vi.mock("../src/hooks/useUserActions.tsx", () => ({
+    default: vi.fn()
+}))
 
 test(`Find "explore products" button`, async () => {
     render(<MemoryRouter><Home /></MemoryRouter>);
@@ -20,6 +25,7 @@ test(`Find "explore products" button`, async () => {
 
 
 test(`Redirect to /products when "explore products" button is clicked`, async () => {
+    useUserActions.mockReturnValue({ isAuthenticated: false });
     render(
         <MemoryRouter initialEntries={["/"]}>
             <FilterProvider>
@@ -36,7 +42,7 @@ test(`Redirect to /products when "explore products" button is clicked`, async ()
             </FilterProvider>
         </MemoryRouter>
     );
-    const exploreBtn = await screen.findByRole("button", { name: /Explore products/i });
+    const exploreBtn = await screen.findByRole("button", { name: /explore products/i });
     fireEvent.click(exploreBtn);
     await waitFor(() => {
         expect(screen.getByText("Explore our products")).toBeInTheDocument();
