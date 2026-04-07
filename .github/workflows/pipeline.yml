@@ -45,7 +45,7 @@ jobs:
           npm install --global vercel@latest
           echo "Vercel CLI installed successfully"
 
-      - name: Pull Vervel Enviroment Information
+      - name: Pull Vercel Enviroment Information
         run: |
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           echo "Vercel Enviroment Information pulled successfully"

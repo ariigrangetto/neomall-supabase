@@ -8,6 +8,7 @@ import CartProvider from '../src/context/CartContext.tsx';
 import UserProvider from '../src/context/UserActions.tsx';
 import Login from '../src/pages/Login.tsx';
 import useUserActions from '../src/hooks/useUserActions.tsx';
+import useUrl from '../src/hooks/useUrl.tsx';
 
 afterEach(() => {
     cleanup();
@@ -15,7 +16,11 @@ afterEach(() => {
 
 vi.mock("../src/hooks/useUserActions.tsx", () => ({
     default: vi.fn()
-}))
+}));
+
+vi.mock("../src/hooks/useUrl.tsx", () => ({
+    default: vi.fn()
+}));
 
 test(`Find "explore products" button`, async () => {
     render(<MemoryRouter><Home /></MemoryRouter>);
@@ -26,6 +31,11 @@ test(`Find "explore products" button`, async () => {
 
 test(`Redirect to /products when "explore products" button is clicked`, async () => {
     useUserActions.mockReturnValue({ isAuthenticated: false });
+    useUrl.mockReturnValue({ 
+        products: [{ id: "1", title: "Test Product", category: "beauty" }], 
+        loading: false, 
+        error: false 
+    });
     render(
         <MemoryRouter initialEntries={["/"]}>
             <FilterProvider>
