@@ -52,7 +52,7 @@ jobs:
 
       - name: Build Project Artifacts
         run: |
-          vercel build --token=${{ secrets.VERCEL_NEOMALL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_NEOMALL_TOKEN }}
           echo "Project Artifacts built successfully"
 
       - name: Deploy Project Artifacts to Vercel
